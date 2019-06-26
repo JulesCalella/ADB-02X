@@ -262,6 +262,14 @@ int main(void)
     
     // Oscillator Setup
     ret = oscillatorInit();
+    if(ret == 1){ // Device was set to FRC.
+        ret = oscillatorInit();
+    }
+    else if(ret == -1){
+        while(1){ // Clock Fail
+               void ledDeviceFail();
+        }
+    }
     
     // Pin Setup
     pinInit();

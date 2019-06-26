@@ -71,47 +71,18 @@
 // CTRL5  D23E D23D D23C D23B D23A D23F D23G
 // CTRL6  D24E D24D D24C D24B D24A D24F D24G
 
-enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
-              square, attack, memory, two, five, eight, f2,
-              triangle, decay, tempo, three, six, nine, f3,
-              d22e, d22d, d22c, d22b, d22a, d22f, d22g,
-              d23e, d23d, d23c, d23b, d23a, d23f, d23g,
-              d24e, d24d, d24c, d24b, d24a, d24f, d24g,};
-              
-int ledControlEnabled = 1;
+extern enum ledNames;
+extern int ledControlEnabled;
 
 // =================== //
 // FUNCTION PROTOTYPES // 
 // =================== //
-/* [LED CONTROL] takes two parameters. 'int currentLed' defines the next LED in 
- * the sequence to be controlled. 'int &ledIsOn' is the address of the array 
- * that defines whether that LED is ON or OFF. The values for 'currentLed' 
- * correlate with the values in the enum 'ledNames'.
- * 
- * 'currentLed' must increment by 1 as it will only disable the previous LED in 
- * the sequence. To control an individual LED, use the function:
- * 'void singleLedControl' */ 
-inline void ledControl(int currentLed, int &ledIsOn);
+/* */
+int pinInit();
 
-/* [SINGLE LED CONTROL] takes one parameter. 'int ledNumber' defines the LED to
- * activate. Whereas 'ledControl(~)' pulse width modulates the LEDs, this 
- * function supplies constant power so it will be considerably brighter. It is 
- * a useful for testing LEDs, just make sure to call 'ledControlDisable()' 
- * before using it. */
-void singleLedControl(int ledNumber);
-
-/* [LED CONTROL DISABLE] disables the automatic LED control. Useful if you need
- * to use the 'singleLedControl(~)' or 'ledsOff()' functions. */
-void ledControlDisable();
-
-/* [LED CONTROL ENABLE] enables the automatic LED control. */
-void ledControlEnable();
-
-/* [LED DISPLAY SEQUENCE] displays an entertaining LED show. */
-void ledDisplaySequence();
-
-/* [LED TIME DELAY] is a simple delay function using a for loop. */
-void ledTimeDelay(int maxDelay);
+/* [AK4386 INIT] initializes the AK4386 Digital-Analog Converter by turning on
+ * the reference clock and making sure it's connected. */
+int ak4386Init();
 
 /*[READ BUTTONS] reads the current status of all the buttons and returns an
  * int value indicating which are held or not. The return int is right 
@@ -120,9 +91,37 @@ void ledTimeDelay(int maxDelay);
  * 0 0 0 0 - 0 0 0 B9 - B8 B7 B6 B5 - B4 B3 B2 B1 */
 inline int readButtons();
 
-/* [AK4386 INIT] initializes the AK4386 Digital-Analog Converter by turning on
- * the reference clock and making sure it's connected. */
-int ak4386Init();
+void ledsOff();
+
+/* [LED CONTROL DISABLE] disables the automatic LED control. Useful if you need
+ * to use the 'singleLedControl(~)' or 'ledsOff()' functions. */
+void ledControlDisable();
+
+/* [LED CONTROL ENABLE] enables the automatic LED control. */
+void ledControlEnable();
+
+/* [SINGLE LED CONTROL] takes one parameter. 'int ledNumber' defines the LED to
+ * activate. Whereas 'ledControl(~)' pulse width modulates the LEDs, this 
+ * function supplies constant power so it will be considerably brighter. It is 
+ * a useful for testing LEDs, just make sure to call 'ledControlDisable()' 
+ * before using it. */
+void singleLedControl(int ledNumber);
+
+/* [LED CONTROL] takes two parameters. 'int currentLed' defines the next LED in 
+ * the sequence to be controlled. 'int &ledIsOn' is the address of the array 
+ * that defines whether that LED is ON or OFF. The values for 'currentLed' 
+ * correlate with the values in the enum 'ledNames'.
+ * 
+ * 'currentLed' must increment by 1 as it will only disable the previous LED in 
+ * the sequence. To control an individual LED, use the function:
+ * 'void singleLedControl' */ 
+void ledControl(int currentLed, int *ledIsOn);
+
+/* [LED DISPLAY SEQUENCE] displays an entertaining LED show. */
+void ledDisplaySequence();
+
+/* [LED TIME DELAY] is a simple delay function using a for loop. */
+void ledTimeDelay(int maxDelay);
 
 void io_ffc1(int selection);
 void io_ffc2(int selection);
@@ -131,6 +130,11 @@ void io_ffc4(int selection);
 void io_ffc5(int selection);
 void io_ffc6(int selection);
 void io_ffc7(int selection);
+void io_ffc8(int selection);
+void io_ffc9(int selection);
+void io_ffc10(int selection);
+void io_ffc11(int selection);
+void io_ffc12(int selection);
 
 void set_ffc1(int selection);
 void set_ffc2(int selection);
@@ -139,6 +143,11 @@ void set_ffc4(int selection);
 void set_ffc5(int selection);
 void set_ffc6(int selection);
 void set_ffc7(int selection);
+void set_ffc8(int selection);
+void set_ffc9(int selection);
+void set_ffc10(int selection);
+void set_ffc11(int selection);
+void set_ffc12(int selection);
 
 int read_ffc1();
 int read_ffc2();
@@ -147,6 +156,15 @@ int read_ffc4();
 int read_ffc5();
 int read_ffc6();
 int read_ffc7();
+int read_ffc8();
+int read_ffc9();
+int read_ffc10();
+int read_ffc11();
+int read_ffc12();
+
+void set_wp(int selection);
+
+void ledDeviceFail();
 
 #endif	/* DSPIC33CH512MP506_PINS_H */
 

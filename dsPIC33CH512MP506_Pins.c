@@ -3,6 +3,18 @@
 #include "dsPIC33CH512MP506_Pins.h"
 
 
+// ** Golbal Variables ** //
+enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
+              square, attack, memory, two, five, eight, f2,
+              triangle, decay, tempo, three, six, nine, f3,
+              d22e, d22d, d22c, d22b, d22a, d22f, d22g,
+              d23e, d23d, d23c, d23b, d23a, d23f, d23g,
+              d24e, d24d, d24c, d24b, d24a, d24f, d24g,};
+              
+int ledControlEnabled = 1;
+
+
+// ** Functions ** //
 int pinInit()
 {
     // Configure LED Pins as Outputs
@@ -51,6 +63,10 @@ int pinInit()
     // Configure I2S pins
     
     // Configure Reference Clock (24kHz * 512 = 12.288 MHz)
+    REFOCONLbits.ROEN = 0;
+    REFOCONL = 0x1000;
+    REFOCONH = 0x0003;
+    REFOCONLbits.ROEN = 1;
     
     // Configure Additional Pins
     TRISDbits.TRISD7 = 0;   // WP
@@ -70,6 +86,8 @@ int pinInit()
     
     // Turn off all LEDs
     ledsOff();
+    
+    return 0;
 }
 
 int ak4386Init()
@@ -345,7 +363,7 @@ void singleLedControl(int currentLed)
     }
 }
 
-inline void ledControl(int currentLed, int &ledIsOn)
+void ledControl(int currentLed, int *ledIsOn)
 {
     if(ledControlEnabled == 0) return;
     
@@ -1057,7 +1075,7 @@ void set_ffc11(int selection)
     FFC11_O = selection;
 }
 
-int read_ffc1()
+int read_ffc11()
 {
    return FFC11_I; 
 }
@@ -1082,4 +1100,10 @@ int read_ffc12()
 void set_wp(int selection)
 {
     WP = selection;
+}
+
+void ledDeviceFail()
+{
+    singleLedControl(f1); ledTimeDelay(1000);
+    singleLedControl(f3); ledTimeDelay(1000);
 }
