@@ -252,11 +252,34 @@
 // Use project enums instead of #define for ON and OFF.
 
 #include <xc.h>
-
+#include "dsPIC33CH512MP506_Oscillator.h"
+#include "dsPIC33CH512MP506_Pins.h"
 
 
 int main(void)
 {
+    int ret;
+    
+    // Oscillator Setup
+    ret = oscillatorInit();
+    
+    // Pin Setup
+    pinInit();
+    
+    // I2C Setup
+    
+    // I2S/SPI Setup
+    
+    // AK4386 Setup
+    ak4386Init();
+    
+    // EEPROM Setup
+    
+    // Timer Setup
+    
+    ledDisplaySequence();
+    
+    // Activate Interrupts just before main loop
     
     while(1)
     {
