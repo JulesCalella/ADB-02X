@@ -58,9 +58,21 @@ int pinInit()
     TRISDbits.TRISD3 = 0;
     LATDbits.LATD3 = 0;
     
+    TRISDbits.TRISD0 = 0;   // PDN
+    LATDbits.LATD0 = 0;
+    
     // Configure I2C Pins 
     
     // Configure I2S pins
+    TRISBbits.TRISB13 = 0;
+    TRISBbits.TRISB12 = 0;
+    TRISBbits.TRISB11 = 0;
+    TRISBbits.TRISB10 = 0;
+    // SCK1 = 6; SDO1 = 5; SS1 = 7; REFCLKO = 14;
+    RPOR6bits.RP45R = 14;   // MCLK = RP45/RB13
+    RPOR6bits.RP44R = 6;    // BLCK = RP44/RB12
+    RPOR5bits.RP43R = 5;    // SDTI = RP43/RB11
+    RPOR5bits.RP42R = 7;    // LRCK = RP42/RB10
     
     // Configure Reference Clock (24kHz * 512 = 12.288 MHz)
     REFOCONLbits.ROEN = 0;

@@ -252,7 +252,7 @@
 // Use project enums instead of #define for ON and OFF.
 
 #include <xc.h>
-#include "dsPIC33CH512MP506_Oscillator.h"
+#include "dsPIC33CH512MP506_Modules.h"
 #include "dsPIC33CH512MP506_Pins.h"
 
 
