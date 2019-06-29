@@ -276,22 +276,31 @@ int main(void)
     
     // I2C Setup
     
+    
     // I2S/SPI Setup
+    spi1Init();
+    spi1SetBaudRate(1000000);
     
     // AK4386 Setup
     ak4386Init();
     
     // EEPROM Setup
     
+    
     // Timer Setup
+    
     
     ledDisplaySequence();
     
     // Activate Interrupts just before main loop
+    spi1On();
+    i2c1On();
+    i2c2On();
+    uart1On();    
     
     while(1)
     {
-        
+        Nop();
     }
     
     return 0;

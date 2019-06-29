@@ -13,18 +13,37 @@
 #define XT 2
 #define EC 3
 
+#define SYSTEM_CLOCK 100000000
+#define PERIPHERAL_CLOCK 50000000
+
 // Function Prototypes 
 int deviceInit();
 
 int oscillatorInit();
 
 int spi1Init();
+void spi1On();
+void spi1Off();
+float spi1SetBaudRate(int baudRate);
+float spi1ReadBaudRate();
 
 int i2c1Init();
+void i2c1On();
+void i2c1Off();
+float i2c1SetBaudRate();
+float i2c1ReadBaudRate();
 
 int i2c2Init();
+void i2c2On();
+void i2c2Off();
+float i2c2SetBaudRate();
+float i2c2ReadBaudRate();
 
 int uart1Init();
+void uart1On();
+void uart1Off();
+float uart1SetBaudRate();
+float uart1ReadBaudRate();
 
 #endif	/* DSPIC33CH512MP506_MODULES_H */
 
