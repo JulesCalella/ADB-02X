@@ -1,12 +1,18 @@
 #include <xc.h>
 #include "dsPIC33CH512MP506_Modules.h"
 
+/* -----------------------------------------------------------------------------
+ * DEVICE INIT - 
+ * ---------------------------------------------------------------------------*/
 int deviceInit()
 {
     
     return 0;
 }
 
+/* -----------------------------------------------------------------------------
+ * OSCILLATOR INIT - 
+ * ---------------------------------------------------------------------------*/
 int oscillatorInit()
 {
     // Fpllo = Fplli * M / (N1 * N2 * N3)
@@ -97,8 +103,8 @@ void spi1Off()
 }
 
 /* -----------------------------------------------------------------------------
- * SPI 1 SET BAUD RATE - takes one argument, the desired baud rate, and 
- * calculates the needed value for SPI1BRGL to the nearest integer. It will
+ * SPI 1 SET BAUD RATE - takes one argument, the desired baud rate in kiloHertz, 
+ * and calculates the needed value for SPI1BRGL to the nearest integer. It will
  * return the percent error of the desired baud rate. To read the actual value 
  * of the current baudRate, call 'spi1ReadBaudRate()'.
  * ---------------------------------------------------------------------------*/
@@ -107,7 +113,7 @@ float  spi1SetBaudRate(int baudRate)
     spi1Off();
     
     // SPI1BRG = [Fpb / (2 * BaudRate)] - 1
-    int temp = (( PERIPHERAL_CLOCK / (2.0 * baudRate) ) - 1) + 0.5;
+    int temp = (( PERIPHERAL_CLOCK / (2000.0 * baudRate) ) - 1) + 0.5;
     SPI1BRGL = temp;
     
     float percentError = ((spi1ReadBaudRate() - baudRate) / (baudRate * 1.0));
@@ -122,7 +128,7 @@ float  spi1SetBaudRate(int baudRate)
 float spi1ReadBaudRate()
 {
     // Baud Rate = Fpb / (2 * (SPI1BRG + 1))
-    return (PERIPHERAL_CLOCK / (2.0 * (SPI1BRGL + 1.0)));
+    return (PERIPHERAL_CLOCK / (2.0 * ((SPI1BRGL * 1000.0) + 1.0)));
 }
 
 /* -----------------------------------------------------------------------------
@@ -137,86 +143,291 @@ int spi1Write(int toSendDataHigh, int toSendDataLow)
 }
 
 // ========== I2C 1 ========== //
+/* -----------------------------------------------------------------------------
+ * I2C 1 INIT - 
+ * ---------------------------------------------------------------------------*/
 int i2c1Init()
 {
+    I2C1CONLbits.I2CEN = 0;
+    I2C1CONL = 0x0000;  // 0000 0000 0000 0000
+    I2C1CONH = 0x0008;  // 0000 0000 0000 1000
     
     return 0;
 }
 
+/* -----------------------------------------------------------------------------
+ * I2C 1 ON - 
+ * ---------------------------------------------------------------------------*/
 void i2c1On()
 {
-    
+    I2C1CONLbits.I2CEN = 1;
 }
 
+/* -----------------------------------------------------------------------------
+ * I2C 1 OFF - 
+ * ---------------------------------------------------------------------------*/
 void i2c1Off()
 {
-    
+    I2C1CONLbits.I2CEN = 0;
 }
 
-void i2c1SetBaudRate()
+/* -----------------------------------------------------------------------------
+ * I2C 1 SET BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float i2c1SetBaudRate(int baudRate)
 {
+    // I2C1BRG = [ (1/(Fscl - Delay) * Fp ] - 2 must be higher than 3
+    int temp = ((((1.0/baudRate) * (1/1000.0)) - 0.00000015) * PERIPHERAL_CLOCK) - 1.5;
+    if(temp <4) temp = 0x4;
+    I2C1BRG = temp;
     
+    return (i2c1ReadBaudRate() - baudRate) / (baudRate * 1.0);
 }
 
-int i2c1ReadBaudRate()
+/* -----------------------------------------------------------------------------
+ * I2C 1 READ BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float i2c1ReadBaudRate()
 {
+    float baudRate = PERIPHERAL_CLOCK / (I2C1BRG + 2.0 + (PERIPHERAL_CLOCK * 0.00000015));
+    
+    return baudRate;
+}
+
+/* -----------------------------------------------------------------------------
+ * I2C 1 WRITE - 
+ * ---------------------------------------------------------------------------*/
+int i2c1Write(int devAddress, int regAddress, int toSendData, int numBytes)
+{
+    // Check if Busy
+    if(I2C1CONLbits.PEN != 0){
+        I2C1CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    
+    // Start
+    I2C1CONLbits.SEN = 1;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address
+    I2C1TRN = regAddress;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+    if(numBytes == 1){
+        I2C1TRN = toSendData;
+        while(I2C1STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+    } else if(numBytes == 2){
+        I2C1TRN = toSendData >> 8;
+        while(I2C1STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+        
+        I2C1TRN = toSendData & 0x00FF;
+        while(I2C1STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+    } else {
+        // Error defining parameters
+        I2C1CONLbits.PEN = 1;
+        return -2;
+    }
+    
+    // Stop
+    I2C1CONLbits.PEN = 1;
+    
+    return 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * I2C 1 READ - 
+ * ---------------------------------------------------------------------------*/
+int i2c1Read(int devAddress, int regAddress, int *readData, int numBytes)
+{
+    // Check if Busy
+    if(I2C1CONLbits.PEN != 0){
+        I2C1CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    int numReads;
+    I2C1CONLbits.ACKDT = 0;
+    
+    // Start
+    I2C1CONLbits.SEN = 1;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address
+    I2C1TRN = regAddress;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Restart
+    I2C1CONLbits.RSEN = 1;
+    
+    // Device Address with Read
+    transferData = devAddress | 0x01;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+     for(numReads=1; numReads<=numBytes; numReads++){
+        if(numReads == numBytes){
+            // On the final Byte; Send a NACK
+            I2C1CONLbits.ACKDT = 1;
+        }
+        // Wait for data to be received
+        while(I2C1STATbits.RBF == 0){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+        
+        readData[numReads-1] = I2C1RCV;
+        I2C1CONLbits.ACKEN = 1;
+        // Wait for ACK/NACK to send
+        while(I2C1CONLbits.ACKEN == 1);
+    }
+    
+    // Stop
+    I2C1CONLbits.PEN = 1;
     
     return 0;
 }
 
 
 // ========== I2C 2 ========== //
+/* -----------------------------------------------------------------------------
+ * I2C 2 INIT - 
+ * ---------------------------------------------------------------------------*/
 int i2c2Init()
 {
     
     return 0;
 }
 
+/* -----------------------------------------------------------------------------
+ * I2C 2 ON - 
+ * ---------------------------------------------------------------------------*/
 void i2c2On()
 {
     
 }
 
+/* -----------------------------------------------------------------------------
+ * I2C 2 OFF - 
+ * ---------------------------------------------------------------------------*/
 void i2c2Off()
 {
     
 }
 
-void i2c2SetBaudRate()
+/* -----------------------------------------------------------------------------
+ * I2C 2 SET BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float i2c2SetBaudRate()
 {
-    
+    return 0.0;
 }
 
-int i2c2ReadBaudRate()
+/* -----------------------------------------------------------------------------
+ * I2C 2 READ BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float i2c2ReadBaudRate()
+{
+    
+    return 0.0;
+}
+
+/* -----------------------------------------------------------------------------
+ * I2C 2 WRITE - 
+ * ---------------------------------------------------------------------------*/
+int i2c2Write(int devAddress, int regAddress, int toSendData, int numBytes)
+{
+    
+    return 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * I2C 2 READ - 
+ * ---------------------------------------------------------------------------*/
+int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes)
 {
     
     return 0;
 }
 
 // ========== UART 1 ========== //
+/* -----------------------------------------------------------------------------
+ * UART 1 INIT - 
+ * ---------------------------------------------------------------------------*/
 int uart1Init()
 {
     
     return 0;
 }
 
+/* -----------------------------------------------------------------------------
+ * UART 1 ON - 
+ * ---------------------------------------------------------------------------*/
 void uart1On()
 {
     
 }
 
+/* -----------------------------------------------------------------------------
+ * UART 1 OFF - 
+ * ---------------------------------------------------------------------------*/
 void uart1Off()
 {
     
 }
 
-void uart1SetBaudRate()
+/* -----------------------------------------------------------------------------
+ * UART 1 SET BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float uart1SetBaudRate()
 {
     
+    return 0.0;
 }
 
-int uart1ReadBaudRate()
+/* -----------------------------------------------------------------------------
+ * UART 1 READ BAUD RATE - 
+ * ---------------------------------------------------------------------------*/
+float uart1ReadBaudRate()
 {
     
-    return 0;
+    return 0.0;
 }

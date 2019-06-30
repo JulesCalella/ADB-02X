@@ -279,7 +279,7 @@ int main(void)
     
     // I2S/SPI Setup
     spi1Init();
-    spi1SetBaudRate(1000000);
+    spi1SetBaudRate(1000);
     
     // AK4386 Setup
     ak4386Init();

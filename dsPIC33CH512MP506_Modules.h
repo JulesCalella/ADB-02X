@@ -20,7 +20,6 @@
 int deviceInit();
 
 int oscillatorInit();
-
 int spi1Init();
 void spi1On();
 void spi1Off();
@@ -32,16 +31,22 @@ void i2c1On();
 void i2c1Off();
 float i2c1SetBaudRate();
 float i2c1ReadBaudRate();
+int i2c1Write(int devAddress, int regAddress, int toSendData, int numBytes);
+int i2c1Read(int devAddress, int regAddress, int *readData, int numBytes);
 
 int i2c2Init();
 void i2c2On();
 void i2c2Off();
 float i2c2SetBaudRate();
 float i2c2ReadBaudRate();
+int i2c2Write(int devAddress, int regAddress, int toSendData, int numBytes);
+int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes);
 
 int uart1Init();
 void uart1On();
 void uart1Off();
+float uart1SetBaudRate();
+float uart1ReadBaudRate();
 float uart1SetBaudRate();
 float uart1ReadBaudRate();
 
