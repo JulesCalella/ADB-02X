@@ -275,7 +275,10 @@ int main(void)
     pinInit();
     
     // I2C Setup
-    
+    i2c1Init();
+    i2c1SetBaudRate(100);
+    i2c2Init();
+    i2c2SetBaudRate(100);
     
     // I2S/SPI Setup
     spi1Init();

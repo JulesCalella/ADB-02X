@@ -303,8 +303,8 @@ int i2c1Read(int devAddress, int regAddress, int *readData, int numBytes)
     }
     
     // Data Bytes
-     for(numReads=1; numReads<=numBytes; numReads++){
-        if(numReads == numBytes){
+     for(numReads=0; numReads<numBytes; numReads++){
+        if(numReads == (numBytes - 1)){
             // On the final Byte; Send a NACK
             I2C1CONLbits.ACKDT = 1;
         }
@@ -314,7 +314,7 @@ int i2c1Read(int devAddress, int regAddress, int *readData, int numBytes)
             if(timeoutCounter >= timeoutMax) return -1;
         }
         
-        readData[numReads-1] = I2C1RCV;
+        readData[numReads] = I2C1RCV;
         I2C1CONLbits.ACKEN = 1;
         // Wait for ACK/NACK to send
         while(I2C1CONLbits.ACKEN == 1);
@@ -333,6 +333,9 @@ int i2c1Read(int devAddress, int regAddress, int *readData, int numBytes)
  * ---------------------------------------------------------------------------*/
 int i2c2Init()
 {
+    I2C2CONLbits.I2CEN = 0;
+    I2C2CONL = 0x0000;  // 0000 0000 0000 0000
+    I2C2CONH = 0x0008;  // 0000 0000 0000 1000
     
     return 0;
 }
@@ -342,7 +345,7 @@ int i2c2Init()
  * ---------------------------------------------------------------------------*/
 void i2c2On()
 {
-    
+    I2C2CONLbits.I2CEN = 1;
 }
 
 /* -----------------------------------------------------------------------------
@@ -350,15 +353,20 @@ void i2c2On()
  * ---------------------------------------------------------------------------*/
 void i2c2Off()
 {
-    
+    I2C2CONLbits.I2CEN = 0;
 }
 
 /* -----------------------------------------------------------------------------
  * I2C 2 SET BAUD RATE - 
  * ---------------------------------------------------------------------------*/
-float i2c2SetBaudRate()
+float i2c2SetBaudRate(int baudRate)
 {
-    return 0.0;
+    // I2C2BRG = [ (1/(Fscl - Delay) * Fp ] - 2 must be higher than 3
+    int temp = ((((1.0/baudRate) * (1/1000.0)) - 0.00000015) * PERIPHERAL_CLOCK) - 1.5;
+    if(temp <4) temp = 0x4;
+    I2C2BRG = temp;
+    
+    return (i2c2ReadBaudRate() - baudRate) / (baudRate * 1.0);
 }
 
 /* -----------------------------------------------------------------------------
@@ -366,8 +374,9 @@ float i2c2SetBaudRate()
  * ---------------------------------------------------------------------------*/
 float i2c2ReadBaudRate()
 {
+    float baudRate = PERIPHERAL_CLOCK / (I2C2BRG + 2.0 + (PERIPHERAL_CLOCK * 0.00000015));
     
-    return 0.0;
+    return baudRate;
 }
 
 /* -----------------------------------------------------------------------------
@@ -375,6 +384,60 @@ float i2c2ReadBaudRate()
  * ---------------------------------------------------------------------------*/
 int i2c2Write(int devAddress, int regAddress, int toSendData, int numBytes)
 {
+    // Check if Busy
+    if(I2C2CONLbits.PEN != 0){
+        I2C2CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    
+    // Start
+    I2C2CONLbits.SEN = 1;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C2TRN = transferData;
+    while(I2C2STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address
+    I2C2TRN = regAddress;
+    while(I2C2STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+    if(numBytes == 1){
+        I2C2TRN = toSendData;
+        while(I2C2STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+    } else if(numBytes == 2){
+        I2C2TRN = toSendData >> 8;
+        while(I2C2STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+        
+        I2C2TRN = toSendData & 0x00FF;
+        while(I2C2STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+    } else {
+        // Error defining parameters
+        I2C2CONLbits.PEN = 1;
+        return -2;
+    }
+    
+    // Stop
+    I2C2CONLbits.PEN = 1;
     
     return 0;
 }
@@ -384,6 +447,66 @@ int i2c2Write(int devAddress, int regAddress, int toSendData, int numBytes)
  * ---------------------------------------------------------------------------*/
 int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes)
 {
+    // Check if Busy
+    if(I2C2CONLbits.PEN != 0){
+        I2C2CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    int numReads;
+    I2C2CONLbits.ACKDT = 0;
+    
+    // Start
+    I2C2CONLbits.SEN = 1;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C2TRN = transferData;
+    while(I2C2STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address
+    I2C2TRN = regAddress;
+    while(I2C2STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Restart
+    I2C2CONLbits.RSEN = 1;
+    
+    // Device Address with Read
+    transferData = devAddress | 0x01;
+    I2C2TRN = transferData;
+    while(I2C2STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+     for(numReads=0; numReads<numBytes; numReads++){
+        if(numReads == (numBytes - 1)){
+            // On the final Byte; Send a NACK
+            I2C2CONLbits.ACKDT = 1;
+        }
+        // Wait for data to be received
+        while(I2C2STATbits.RBF == 0){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+        
+        readData[numReads] = I2C2RCV;
+        I2C2CONLbits.ACKEN = 1;
+        // Wait for ACK/NACK to send
+        while(I2C2CONLbits.ACKEN == 1);
+    }
+    
+    // Stop
+    I2C2CONLbits.PEN = 1;
     
     return 0;
 }
