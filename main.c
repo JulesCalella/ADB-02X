@@ -267,9 +267,12 @@ int main(void)
     }
     else if(ret == -1){
         while(1){ // Clock Fail
-               void ledDeviceFail();
+               ledDeviceFail();
         }
     }
+    
+    // Startup Delay for Oscillator Stabilizing
+    for(ret=0; ret<10000; ret++) continue;
     
     // Pin Setup
     pinInit();
@@ -293,18 +296,56 @@ int main(void)
     // Timer Setup
     
     
-    ledDisplaySequence();
-    
     // Activate Interrupts just before main loop
     spi1On();
     i2c1On();
     i2c2On();
     uart1On();    
     
+    ledDisplaySequence();
+    
+    ledsOff();
+    
     while(1)
     {
-        Nop();
+       
     }
     
     return 0;
 }
+
+//ret = readButtons();
+//        
+//        if(ret & 0x0001){ 
+//            singleLedControl(0); buttonPress = 1;
+//        }
+//        if(ret & 0x0002){ 
+//            singleLedControl(1); buttonPress = 1;
+//        }
+//        if(ret & 0x0004){ 
+//            singleLedControl(2); buttonPress = 1; 
+//        }
+//        if(ret & 0x0008){ 
+//            singleLedControl(3); buttonPress = 1; 
+//        }
+//        if(ret & 0x0010){ 
+//            singleLedControl(4); buttonPress = 1; 
+//        }
+//        if(ret & 0x0020){ 
+//            singleLedControl(5); buttonPress = 1;
+//        }
+//        if(ret & 0x0040){ 
+//            singleLedControl(6); buttonPress = 1;
+//        }
+//        if(ret == 0){
+//            ledDisplaySequence();
+//        }
+//        
+//        if((buttonPress == 1) && (ret == 0)){
+//            buttonPress = 0;
+//            i++;
+//        }
+//        
+//        if(i >= 42) i = 0;
+//        
+//        Nop();
