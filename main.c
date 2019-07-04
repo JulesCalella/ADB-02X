@@ -254,6 +254,7 @@
 #include <xc.h>
 #include "dsPIC33CH512MP506_Modules.h"
 #include "dsPIC33CH512MP506_Pins.h"
+#include "dsPIC33CH512MP506_Audio.h"
 
 
 int main(void)
@@ -305,6 +306,8 @@ int main(void)
     ledDisplaySequence();
     
     ledsOff();
+    
+    generateAllWaveforms();
     
     while(1)
     {

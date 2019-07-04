@@ -18,6 +18,20 @@
  * 12 - Sawtooth Wave Amplitude
  * */
 
+int c1Waveform[C1_BUFF_SIZE];
+int cSharp1Waveform[CSh1_BUFF_SIZE];
+int d1Waveform[D1_BUFF_SIZE];
+int dSharp1Waveform[DSh1_BUFF_SIZE];
+int e1Waveform[E1_BUFF_SIZE];
+int f1Waveform[F1_BUFF_SIZE];
+int fSharp1Waveform[FSh1_BUFF_SIZE];
+int g1Waveform[G1_BUFF_SIZE];
+int gSharp1Waveform[GSh1_BUFF_SIZE];
+int a1Waveform[A1_BUFF_SIZE];
+int aSharp1Waveform[ASh1_BUFF_SIZE];
+int b1Waveform[B1_BUFF_SIZE];
+int controlArray[13];
+
 /*
  * 
  */
