@@ -18,7 +18,9 @@
  * 12 - Sawtooth Wave Amplitude
  * */
 
-
+/*
+ * 
+ */
 void generateAllWaveforms()
 {
     generateWaveform(c1Waveform, controlArray, C1_BUFF_SIZE);
@@ -35,30 +37,50 @@ void generateAllWaveforms()
     generateWaveform(b1Waveform, controlArray, B1_BUFF_SIZE);
 }
 
+/*
+ * 
+ */
 void generateWaveform(int *audioArray, int *controlArray, int buffSize)
 {
     clearAudioArray(audioArray, buffSize);
-    generateSineWave(audioArray, controlArray, buffSize);
-    generateSquareWave(audioArray, controlArray, buffSize);
-    generateTriangleWave(audioArray, controlArray, buffSize);
-    generateSawWave(audioArray, controlArray, buffSize);
+    generateSineWave(audioArray, controlArray[9], buffSize);
+    generateSquareWave(audioArray, controlArray[10], buffSize);
+    generateTriangleWave(audioArray, controlArray[11], buffSize);
+    generateSawWave(audioArray, controlArray[12], buffSize);
+    
     offsetAudioArray(0x1FFF, audioArray, buffSize);
 }
 
-void generateSineWave(int *audioArray, int *controlArray, int numBytes)
+/*
+ * 
+ */
+void generateSineWave(int *audioArray, int amplitude, int numBytes)
 {
-    int i;
-    int amplitude = controlArray[9];
+    int i, overtoneNum;
+    float overtoneAmplitude;
     
     for(i=0; i<numBytes; i++){
         audioArray[i] += (AMPLITUDE_MULTIPLIER* (amplitude * sin(2.0 * PI * (i/(numBytes * 1.0)))));
     }
+    
+    // Overtones
+    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+        if(controlArray[overtoneNum] != 0){
+            overtoneAmplitude = controlArray[overtoneNum]/amplitude;
+            for(i=0; i<numBytes; i++){
+                audioArray[i] += (AMPLITUDE_MULTIPLIER* (overtoneAmplitude * sin(2.0 * PI * (i/(numBytes * 1.0)))));
+            }
+        }
+    }
 }
 
-void generateSquareWave(int *audioArray, int *controlArray, int numBytes)
+/*
+ * 
+ */
+void generateSquareWave(int *audioArray, int amplitude, int numBytes)
 {
-    int i;
-    int amplitude = controlArray[10];
+    int i, overtoneNum;
+    float overtoneAmplitude;
     
     for(i=0; i<numBytes; i++){
         if(i<(numBytes/2)){
@@ -67,18 +89,37 @@ void generateSquareWave(int *audioArray, int *controlArray, int numBytes)
             audioArray[i] += (AMPLITUDE_MULTIPLIER * amplitude * -1);
         }
     }
+    
+    // Overtones
+    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+        if(controlArray[overtoneNum] != 0){
+            overtoneAmplitude = controlArray[overtoneNum]/amplitude;
+            for(i=0; i<numBytes; i++){
+                for(i=0; i<numBytes; i++){
+                    if(i<(numBytes/2)){
+                        audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude);
+                    } else {
+                        audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude * -1);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void generateTriangleWave(int *audioArray, int *controlArray, int numBytes)
+/*
+ * 
+ */
+void generateTriangleWave(int *audioArray, int amplitude, int numBytes)
 {
-    int i;
-    int amplitude = controlArray[11];
+    int i, overtoneNum;
+    float overtoneAmplitude;
     int firstLoopMax = numBytes/4;
     int secondLoopMax = (3*numBytes)/4;
     int bytesDivTwo = numBytes/2;
     
     for(i=0; i<firstLoopMax; i++){
-        audioArray[i] += i/(firstLoopMax * 1.0);
+        audioArray[i] += AMPLITUDE_MULTIPLIER * amplitude * (i/(firstLoopMax * 1.0));
     }
     
     for( ; i<secondLoopMax; i++){
@@ -88,18 +129,56 @@ void generateTriangleWave(int *audioArray, int *controlArray, int numBytes)
     for( ; i<numBytes; i++){
         audioArray[i]  += AMPLITUDE_MULTIPLIER * amplitude * ((i-firstLoopMax)/(firstLoopMax * 1.0)) - 1;
     }
+    
+    // Overtones
+    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+        if(controlArray[overtoneNum] != 0){
+            overtoneAmplitude = controlArray[overtoneNum]/amplitude;
+            for(i=0; i<numBytes; i++){
+                for(i=0; i<firstLoopMax; i++){
+                    audioArray[i] += AMPLITUDE_MULTIPLIER * overtoneAmplitude * (i/(firstLoopMax * 1.0));
+                }
+
+                for( ; i<secondLoopMax; i++){
+                    audioArray[i] += AMPLITUDE_MULTIPLIER * overtoneAmplitude * ((i-firstLoopMax)/(-bytesDivTwo * 1.0)) + 1;
+                }
+
+                for( ; i<numBytes; i++){
+                    audioArray[i]  += AMPLITUDE_MULTIPLIER * overtoneAmplitude * ((i-firstLoopMax)/(firstLoopMax * 1.0)) - 1;
+                }
+            }
+        }
+    }
 }
 
-void generateSawWave(int *audioArray, int *controlArray, int numBytes)
+/*
+ * 
+ */
+void generateSawWave(int *audioArray, int amplitude, int numBytes)
 {
-    int i;
-    int amplitude = controlArray[12];
+    int i, overtoneNum;
+    float overtoneAmplitude;
     
     for(i=0; i<numBytes; i++){
         audioArray[i] += AMPLITUDE_MULTIPLIER * amplitude * (((2.0 * i)/numBytes) - 1);
     }
+    
+    // Overtones
+    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+        if(controlArray[overtoneNum] != 0){
+            overtoneAmplitude = controlArray[overtoneNum]/amplitude;
+            for(i=0; i<numBytes; i++){
+                for(i=0; i<numBytes; i++){
+                    audioArray[i] += AMPLITUDE_MULTIPLIER * overtoneAmplitude * (((2.0 * i)/numBytes) - 1);
+                }                
+            }
+        }
+    }
 }
 
+/*
+ * 
+ */
 void clearAudioArray(int *audioArray, int numBytes)
 {
     int i;
@@ -109,6 +188,9 @@ void clearAudioArray(int *audioArray, int numBytes)
     }
 }
 
+/*
+ * 
+ */
 void offsetAudioArray(int offset, int *audioArray, int numBytes)
 {
     int i;

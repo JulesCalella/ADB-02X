@@ -44,13 +44,13 @@ void generateAllWaveforms();
 
 void generateWaveform(int *audioArray, int *controlArray, int buffSize);
 
-void generateSineWave(int *audioArray, int *controlArray, int numBytes);
+void generateSineWave(int *audioArray, int amplitude, int numBytes);
 
-void generateSquareWave(int *audioArray, int *controlArray, int numBytes);
+void generateSquareWave(int *audioArray, int amplitude, int numBytes);
 
-void generateTriangleWave(int *audioArray, int *controlArray, int numBytes);
+void generateTriangleWave(int *audioArray, int amplitude, int numBytes);
 
-void generateSawWave(int *audioArray, int *controlArray, int numBytes);
+void generateSawWave(int *audioArray, int amplitude, int numBytes);
 
 void clearAudioArray(int *audioArray, int numBytes);
 
