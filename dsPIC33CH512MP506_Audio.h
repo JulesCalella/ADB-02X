@@ -9,7 +9,7 @@
 #define	DSPIC33CH512MP506_AUDIO_H
 
 #define PI 3.1415927
-#define SAMPLING_FREQUENCY 20000
+#define SAMPLING_FREQUENCY 48000
 #define AMPLITUDE_MULTIPLIER 100
 
 #define C1_BUFF_SIZE 612
@@ -40,6 +40,10 @@ void generateSawWave(int *audioArray, int amplitude, int numBytes);
 void clearAudioArray(int *audioArray, int numBytes);
 
 void offsetAudioArray(int offset, int *audioArray, int numBytes);
+
+void defaultInit();
+
+void playNoteA(int *value, int currentElement);
 
 
 #endif	/* DSPIC33CH512MP506_AUDIO_H */

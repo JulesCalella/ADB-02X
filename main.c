@@ -286,10 +286,10 @@ int main(void)
     
     // I2S/SPI Setup
     spi1Init();
-    spi1SetBaudRate(1000);
+    ///spi1SetBaudRate(1000);
     
     // AK4386 Setup
-    ak4386Init();
+    dacInit();
     
     // EEPROM Setup
     
@@ -307,48 +307,21 @@ int main(void)
     
     ledsOff();
     
+    defaultInit();
     generateAllWaveforms();
+    
+    int noteElement = 0;
+    int output;
     
     while(1)
     {
-       
+        if(SPI1STATLbits.SPITBF != 1){
+            playNoteA(&output, noteElement);
+            spi1Write(output);
+            noteElement++;
+            if(noteElement >= A1_BUFF_SIZE) noteElement = 0;
+        }
     }
     
     return 0;
 }
-
-//ret = readButtons();
-//        
-//        if(ret & 0x0001){ 
-//            singleLedControl(0); buttonPress = 1;
-//        }
-//        if(ret & 0x0002){ 
-//            singleLedControl(1); buttonPress = 1;
-//        }
-//        if(ret & 0x0004){ 
-//            singleLedControl(2); buttonPress = 1; 
-//        }
-//        if(ret & 0x0008){ 
-//            singleLedControl(3); buttonPress = 1; 
-//        }
-//        if(ret & 0x0010){ 
-//            singleLedControl(4); buttonPress = 1; 
-//        }
-//        if(ret & 0x0020){ 
-//            singleLedControl(5); buttonPress = 1;
-//        }
-//        if(ret & 0x0040){ 
-//            singleLedControl(6); buttonPress = 1;
-//        }
-//        if(ret == 0){
-//            ledDisplaySequence();
-//        }
-//        
-//        if((buttonPress == 1) && (ret == 0)){
-//            buttonPress = 0;
-//            i++;
-//        }
-//        
-//        if(i >= 42) i = 0;
-//        
-//        Nop();

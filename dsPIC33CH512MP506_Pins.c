@@ -85,10 +85,10 @@ int pinInit()
     RPOR5bits.RP43R = 5;    // SDTI = RP43/RB11
     RPOR5bits.RP42R = 7;    // LRCK = RP42/RB10
     
-    // Configure Reference Clock (24kHz * 512 = 12.288 MHz)
+    // Configure Reference Clock (48kHz * 256 = 12.288 MHz)
     REFOCONLbits.ROEN = 0;
-    REFOCONL = 0x1000;
-    REFOCONH = 0x0003;
+    REFOCONL = 0x0001;
+    REFOCONH = 7;
     REFOCONLbits.ROEN = 1;
     
     // Configure Additional Pins

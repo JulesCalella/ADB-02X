@@ -58,9 +58,9 @@ void generateWaveform(int *audioArray, int *controlArray, int buffSize)
 {
     clearAudioArray(audioArray, buffSize);
     generateSineWave(audioArray, controlArray[9], buffSize);
-    generateSquareWave(audioArray, controlArray[10], buffSize);
-    generateTriangleWave(audioArray, controlArray[11], buffSize);
-    generateSawWave(audioArray, controlArray[12], buffSize);
+    //generateSquareWave(audioArray, controlArray[10], buffSize);
+    //generateTriangleWave(audioArray, controlArray[11], buffSize);
+    //generateSawWave(audioArray, controlArray[12], buffSize);
     
     offsetAudioArray(0x1FFF, audioArray, buffSize);
 }
@@ -95,9 +95,10 @@ void generateSquareWave(int *audioArray, int amplitude, int numBytes)
 {
     int i, overtoneNum;
     float overtoneAmplitude;
+    int numBytesDivTwo = numBytes/2;
     
     for(i=0; i<numBytes; i++){
-        if(i<(numBytes/2)){
+        if(i<numBytesDivTwo){
             audioArray[i] += (AMPLITUDE_MULTIPLIER * amplitude);
         } else {
             audioArray[i] += (AMPLITUDE_MULTIPLIER * amplitude * -1);
@@ -108,13 +109,12 @@ void generateSquareWave(int *audioArray, int amplitude, int numBytes)
     for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
         if(controlArray[overtoneNum] != 0){
             overtoneAmplitude = controlArray[overtoneNum]/amplitude;
+            
             for(i=0; i<numBytes; i++){
-                for(i=0; i<numBytes; i++){
-                    if(i<(numBytes/2)){
-                        audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude);
-                    } else {
-                        audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude * -1);
-                    }
+                if(i<numBytesDivTwo){
+                    audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude);
+                } else {
+                    audioArray[i] += (AMPLITUDE_MULTIPLIER * overtoneAmplitude * -1);
                 }
             }
         }
@@ -212,4 +212,26 @@ void offsetAudioArray(int offset, int *audioArray, int numBytes)
     for(i=0; i<numBytes; i++){
         audioArray[i] += offset;
     }
+}
+
+void defaultInit()
+{
+    controlArray[0] = 20;
+    controlArray[1] = 0;
+    controlArray[2] = 0;
+    controlArray[3] = 0;
+    controlArray[4] = 0;
+    controlArray[5] = 0;
+    controlArray[6] = 0;
+    controlArray[7] = 0;
+    controlArray[8] = 0;
+    controlArray[9] = 100;
+    controlArray[10] = 0;
+    controlArray[11] = 0;
+    controlArray[12] = 0;
+}
+
+void playNoteA(int *value, int currentElement)
+{
+    *value = a1Waveform[currentElement];
 }

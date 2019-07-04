@@ -16,10 +16,10 @@ int deviceInit()
 int oscillatorInit()
 {
     // Fpllo = Fplli * M / (N1 * N2 * N3)
-    // Set the multipliers here
-    CLKDIVbits.PLLPRE = 1;      // N1=1
-    PLLFBDbits.PLLFBDIV = 125;  // M=125
-    PLLDIVbits.POST1DIV = 5;    // N2=5
+    // Set the multipliers here. Results in 168MHz
+    CLKDIVbits.PLLPRE = 2;      // N1=2
+    PLLFBDbits.PLLFBDIV = 168;  // M=168
+    PLLDIVbits.POST1DIV = 4;    // N2=4
     PLLDIVbits.POST2DIV = 1;    // N3=1
 
     if(OSCCONbits.COSC == 0x3) return 2;
@@ -78,9 +78,9 @@ int oscillatorInit()
 int spi1Init()
 {
     SPI1CON1Lbits.SPIEN = 0;
-    SPI1CON1L = 0x2A33; // 0010 1010 0011 0011
+    SPI1CON1L = 0x2233; // 0010 0010 0011 0011
     SPI1CON1H = 0xF891;    // 1111 1000 1001 0001
-    SPI1CON2L = 0x0017;
+    SPI1CON2L = 0x000F; // 16-bit variable word length
     SPI1IMSKL = 0x0000;
     
     return 0;
@@ -134,10 +134,10 @@ float spi1ReadBaudRate()
 /* -----------------------------------------------------------------------------
  * SPI 1 WRITE - takes two arguments, a low Byte and a high Byte.
  * ---------------------------------------------------------------------------*/
-int spi1Write(int toSendDataHigh, int toSendDataLow)
+int spi1Write(int toSendData)
 {
-    SPI1BUFL = toSendDataLow;
-    SPI1BUFH = toSendDataHigh;
+    SPI1BUFL = toSendData;
+//    SPI1BUFH = toSendDataHigh;
     
     return 0;
 }
@@ -553,4 +553,12 @@ float uart1ReadBaudRate()
 {
     
     return 0.0;
+}
+
+/* -----------------------------------------------------------------------------
+ * DAC INIT - 
+ * ---------------------------------------------------------------------------*/
+void dacInit()
+{
+    spi1SetBaudRate(3072);
 }
