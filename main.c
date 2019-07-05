@@ -286,13 +286,9 @@ int main(void)
     
     // I2S/SPI Setup
     spi1Init();
-    ///spi1SetBaudRate(1000);
     
     // AK4386 Setup
     dacInit();
-    
-    // EEPROM Setup
-    
     
     // Timer Setup
     
@@ -308,34 +304,13 @@ int main(void)
     ledsOff();
     
     defaultWaveformInit();
-    //generateAllWaveforms();
-    
-    int noteElement = 0;
-    int output;
-    int eepromData[10];
-    
-    for(output=0; output<10; output++){
-        eepromData[output] = output * 2;
-    }
-    
-    // Write to EEPROM
-    eepromWrite(0xA0, 0x00, 0x01, eepromData, 0, 5);
-
-    Nop();
-    Nop();
-
-    do{
-        // Read from EEPROM
-        ret = eepromRead(0xA0, 0x00, 0x01, eepromData, 2, 5);
-    } while(ret == 1);
-    
+    generateAllWaveforms();
     
     singleLedControl(30);
     
     while(1)
     {
         Nop();
-        continue;
     }
     
     return 0;
