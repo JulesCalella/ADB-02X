@@ -307,7 +307,7 @@ int main(void)
     
     ledsOff();
     
-    defaultInit();
+    defaultWaveformInit();
     generateAllWaveforms();
     
     int noteElement = 0;

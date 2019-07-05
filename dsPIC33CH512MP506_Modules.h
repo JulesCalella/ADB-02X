@@ -13,8 +13,8 @@
 #define XT 2
 #define EC 3
 
-#define SYSTEM_CLOCK 100000000
-#define PERIPHERAL_CLOCK 50000000
+#define SYSTEM_CLOCK 96000000
+#define PERIPHERAL_CLOCK 48000000
 
 // Function Prototypes 
 int deviceInit();
@@ -25,6 +25,7 @@ void spi1On();
 void spi1Off();
 float spi1SetBaudRate(int baudRate);
 float spi1ReadBaudRate();
+int spi1Write(int toSendData);
 
 int i2c1Init();
 void i2c1On();
@@ -49,6 +50,8 @@ float uart1SetBaudRate();
 float uart1ReadBaudRate();
 float uart1SetBaudRate();
 float uart1ReadBaudRate();
+
+void dacInit();
 
 #endif	/* DSPIC33CH512MP506_MODULES_H */
 

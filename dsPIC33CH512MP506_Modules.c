@@ -15,11 +15,12 @@ int deviceInit()
  * ---------------------------------------------------------------------------*/
 int oscillatorInit()
 {
+    REFOCONLbits.ROEN = 0;
     // Fpllo = Fplli * M / (N1 * N2 * N3)
     // Set the multipliers here. Results in 168MHz
-    CLKDIVbits.PLLPRE = 2;      // N1=2
-    PLLFBDbits.PLLFBDIV = 168;  // M=168
-    PLLDIVbits.POST1DIV = 4;    // N2=4
+    CLKDIVbits.PLLPRE = 1;      // N1=1
+    PLLFBDbits.PLLFBDIV = 144;  // M=144
+    PLLDIVbits.POST1DIV = 6;    // N2=6
     PLLDIVbits.POST2DIV = 1;    // N3=1
 
     if(OSCCONbits.COSC == 0x3) return 2;
@@ -78,7 +79,7 @@ int oscillatorInit()
 int spi1Init()
 {
     SPI1CON1Lbits.SPIEN = 0;
-    SPI1CON1L = 0x2233; // 0010 0010 0011 0011
+    SPI1CON1L = 0x2237; // 0010 0010 0011 0111
     SPI1CON1H = 0xF891;    // 1111 1000 1001 0001
     SPI1CON2L = 0x000F; // 16-bit variable word length
     SPI1IMSKL = 0x0000;
@@ -113,7 +114,8 @@ float  spi1SetBaudRate(int baudRate)
     spi1Off();
     
     // SPI1BRG = [Fpb / (2 * BaudRate)] - 1
-    int temp = (( PERIPHERAL_CLOCK / (2000.0 * baudRate) ) - 1) + 0.5;
+//    int temp = (( PERIPHERAL_CLOCK / (2000.0 * baudRate) ) - 1) + 0.5;
+    int temp = (( 12000000 / (2000.0 * baudRate) ) - 1) + 0.5;
     SPI1BRGL = temp;
     
     float percentError = ((spi1ReadBaudRate() - baudRate) / (baudRate * 1.0));
@@ -560,5 +562,5 @@ float uart1ReadBaudRate()
  * ---------------------------------------------------------------------------*/
 void dacInit()
 {
-    spi1SetBaudRate(3072);
+    spi1SetBaudRate(3000);
 }

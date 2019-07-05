@@ -79,16 +79,26 @@ int pinInit()
     TRISBbits.TRISB12 = 0;
     TRISBbits.TRISB11 = 0;
     TRISBbits.TRISB10 = 0;
+    //__builtin_write_RPCON(0x55);
+    //__builtin_write_RPCON(0xAA);
+    NVMKEY = 0x55;
+    NVMKEY = 0xAA;
+    __builtin_write_RPCON(0x0000);
     // SCK1 = 6; SDO1 = 5; SS1 = 7; REFCLKO = 14;
     RPOR6bits.RP45R = 14;   // MCLK = RP45/RB13
     RPOR6bits.RP44R = 6;    // BLCK = RP44/RB12
     RPOR5bits.RP43R = 5;    // SDTI = RP43/RB11
     RPOR5bits.RP42R = 7;    // LRCK = RP42/RB10
+    NVMKEY = 0x55;
+    NVMKEY = 0xAA;
+    __builtin_write_RPCON(0x0800);
     
-    // Configure Reference Clock (48kHz * 256 = 12.288 MHz)
+    // Configure Reference Clock (12 MHz / 256 = 46,875 Hz)
     REFOCONLbits.ROEN = 0;
-    REFOCONL = 0x0001;
-    REFOCONH = 7;
+    while((REFOCONL & 0x0100) != 0) continue;
+    REFOCONL = 0x3800; // 0011 1000 0000 0000
+    REFOCONH = 4;   // 96MHz / (2*4) = 12MHz
+    while(REFOCONLbits.ROSWEN == 1) continue;
     REFOCONLbits.ROEN = 1;
     
     // Configure Additional Pins

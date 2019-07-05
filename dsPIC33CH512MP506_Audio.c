@@ -214,7 +214,7 @@ void offsetAudioArray(int offset, int *audioArray, int numBytes)
     }
 }
 
-void defaultInit()
+void defaultWaveformInit()
 {
     controlArray[0] = 20;
     controlArray[1] = 0;
