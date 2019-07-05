@@ -308,20 +308,42 @@ int main(void)
     ledsOff();
     
     defaultWaveformInit();
-    generateAllWaveforms();
+    //generateAllWaveforms();
     
     int noteElement = 0;
     int output;
+    int eepromData[10];
+    
+    for(output=0; output<10; output++){
+        eepromData[output] = output * 2;
+    }
+    
+    // Write to EEPROM
+    eepromWrite(0xA0, 0x00, 0x01, eepromData, 0, 5);
+
+    Nop();
+    Nop();
+
+    do{
+        // Read from EEPROM
+        ret = eepromRead(0xA0, 0x00, 0x01, eepromData, 2, 5);
+    } while(ret == 1);
+    
+    
+    singleLedControl(30);
     
     while(1)
     {
-        if(SPI1STATLbits.SPITBF != 1){
-            playNoteA(&output, noteElement);
-            spi1Write(output);
-            noteElement++;
-            if(noteElement >= A1_BUFF_SIZE) noteElement = 0;
-        }
+        Nop();
+        continue;
     }
     
     return 0;
 }
+
+//if(SPI1STATLbits.SPITBF != 1){
+//    playNoteA(&output, noteElement);
+//    spi1Write(output);
+//    noteElement++;
+//    if(noteElement >= A1_BUFF_SIZE) noteElement = 0;
+//}

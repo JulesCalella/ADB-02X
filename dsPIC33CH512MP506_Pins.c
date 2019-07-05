@@ -73,6 +73,8 @@ int pinInit()
     LATDbits.LATD0 = 0;
     
     // Configure I2C Pins 
+    TRISBbits.TRISB8 = 0;
+    TRISBbits.TRISB9 = 0;
     
     // Configure I2S pins
     TRISBbits.TRISB13 = 0;
@@ -89,6 +91,8 @@ int pinInit()
     RPOR6bits.RP44R = 6;    // BLCK = RP44/RB12
     RPOR5bits.RP43R = 5;    // SDTI = RP43/RB11
     RPOR5bits.RP42R = 7;    // LRCK = RP42/RB10
+    RPOR4bits.RP40R = 0;    // RB8 tied to default pin
+    RPOR4bits.RP41R = 0;    // RB9 tied to default pin
     NVMKEY = 0x55;
     NVMKEY = 0xAA;
     __builtin_write_RPCON(0x0800);

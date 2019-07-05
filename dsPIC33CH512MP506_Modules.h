@@ -53,5 +53,8 @@ float uart1ReadBaudRate();
 
 void dacInit();
 
+int eepromWrite(int devAddress, int regAddressH, int regAddressL, int *toSendData, int startElement, int numBytes);
+int eepromRead(int devAddress, int regAddressH, int regAddressL, int *toReadData, int startElement, int numBytes);
+
 #endif	/* DSPIC33CH512MP506_MODULES_H */
 

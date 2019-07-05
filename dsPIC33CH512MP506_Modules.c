@@ -151,7 +151,7 @@ int spi1Write(int toSendData)
 int i2c1Init()
 {
     I2C1CONLbits.I2CEN = 0;
-    I2C1CONL = 0x0000;  // 0000 0000 0000 0000
+    I2C1CONL = 0x0100;  // 0000 0001 0000 0000
     I2C1CONH = 0x0008;  // 0000 0000 0000 1000
     
     return 0;
@@ -454,7 +454,7 @@ int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes)
         I2C2CONLbits.PEN = 1;
         return 1;
     }
-    
+        
     int timeoutCounter= 0;
     int timeoutMax = 0x3FFF;
     int numReads;
@@ -563,4 +563,158 @@ float uart1ReadBaudRate()
 void dacInit()
 {
     spi1SetBaudRate(3000);
+}
+
+/* -----------------------------------------------------------------------------
+ * EEPROM WRITE - 
+ * ---------------------------------------------------------------------------*/
+int eepromWrite(int devAddress, int regAddressH, int regAddressL, int *toSendData, int startElement, int numBytes)
+{
+    // Check if Busy
+    if(I2C1CONLbits.PEN != 0){
+        I2C1CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    I2C1BRG = 238;
+    
+    I2C1STATbits.IWCOL = 0;
+    I2C1STATbits.I2COV = 0;
+    LATDbits.LATD7 = 0; // WP
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    
+    // Start
+    I2C1CONLbits.SEN = 1;
+    while(I2C1CONLbits.SEN == 1) continue;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address High Byte
+    I2C1TRN = regAddressH;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address Low Byte
+    I2C1TRN = regAddressL;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+    int currentElement;
+    int max = numBytes + startElement;
+    for(currentElement=startElement; currentElement<max; currentElement++){
+        I2C1TRN = toSendData[currentElement];
+        while(I2C1STATbits.TRSTAT == 1){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+    }
+    
+    // Stop
+    I2C1CONLbits.PEN = 1;
+    while(I2C1CONLbits.PEN == 1);
+    
+    LATDbits.LATD7 = 1;
+    
+    return 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * EEPROM READ - 
+ * ---------------------------------------------------------------------------*/
+int eepromRead(int devAddress, int regAddressH, int regAddressL, int *toReadData, int startElement, int numBytes)
+{
+    // Check if Busy
+    if(I2C1CONLbits.PEN != 0){
+        I2C1CONLbits.PEN = 1;
+        return 1;
+    }
+    
+    I2C1BRG = 238;
+    I2C1STATbits.IWCOL = 0;
+    I2C1STATbits.I2COV = 0;
+    
+    LATDbits.LATD7 = 0;
+    
+    int timeoutCounter= 0;
+    int timeoutMax = 0x3FFF;
+    int numReads;
+    I2C1CONLbits.ACKDT = 0;
+    
+    // Start
+    I2C1CONLbits.SEN = 1;
+    while(I2C1CONLbits.SEN == 1) continue;
+    
+    // Device Address with Write
+    int transferData = devAddress & 0xFE;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address High
+    I2C1TRN = regAddressH;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Register Address Low
+    I2C1TRN = regAddressL;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Restart
+    I2C1CONLbits.RSEN = 1;
+    while(I2C1CONLbits.RSEN == 1);
+    
+    // Device Address with Read
+    transferData = devAddress | 0x01;
+    I2C1TRN = transferData;
+    while(I2C1STATbits.TRSTAT == 1){
+        timeoutCounter++;
+        if(timeoutCounter >= timeoutMax) return -1;
+    }
+    
+    // Data Bytes
+    for(numReads=0; numReads<numBytes; numReads++){
+        if(numReads == (numBytes - 1)){
+            // On the final Byte; Send a NACK
+            I2C1CONLbits.ACKDT = 1;
+        }
+        // Wait for data to be received
+        I2C1CONLbits.RCEN = 1; // Enable Receive
+        while(I2C1STATbits.RBF == 0){
+            timeoutCounter++;
+            if(timeoutCounter >= timeoutMax) return -1;
+        }
+        
+        toReadData[numReads+startElement] = I2C1RCV;
+        I2C1CONLbits.ACKEN = 1;
+        // Wait for ACK/NACK to send
+        while(I2C1CONLbits.ACKEN == 1);
+    }
+    
+    // Stop
+    I2C1CONLbits.PEN = 1;
+    while(I2C1CONLbits.PEN == 1);
+    
+    LATDbits.LATD7 = 1;
+    
+    return 0;
 }
