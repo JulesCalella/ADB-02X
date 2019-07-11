@@ -74,6 +74,16 @@
 extern enum ledNames;
 extern int ledControlEnabled;
 
+#define BTN_DURATION 100
+
+typedef struct {
+    int isPressed;
+    int isReleased;
+    int pressDuration;
+    int releaseDuration;
+    int isActive;
+} buttonStruct;
+
 // =================== //
 // FUNCTION PROTOTYPES // 
 // =================== //
@@ -89,7 +99,7 @@ int ak4386Init();
  * justified with the first 9 bits representing the 9 individual buttons.
  * 
  * 0 0 0 0 - 0 0 0 B9 - B8 B7 B6 B5 - B4 B3 B2 B1 */
-inline int readButtons();
+void readButtons();
 
 void ledsOff();
 
@@ -165,6 +175,17 @@ int read_ffc12();
 void set_wp(int selection);
 
 void ledDeviceFail();
+
+void ctrlRewind();
+void ctrlPlay();
+void ctrlFastForward();
+void ctrlLoad();
+void ctrlSave();
+void ctrlLeft();
+void ctrlRight();
+void ctrlUp();
+void ctrlDown();
+void updateButton(buttonStruct *button, void (*functionPtr)(), int status);
 
 #endif	/* DSPIC33CH512MP506_PINS_H */
 

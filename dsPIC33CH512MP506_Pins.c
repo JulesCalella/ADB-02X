@@ -2,6 +2,15 @@
 #include <p33CH512MP506.h>
 #include "dsPIC33CH512MP506_Pins.h"
 
+buttonStruct playButton;
+buttonStruct rewindButton;
+buttonStruct fastForwardButton;
+buttonStruct saveButton;
+buttonStruct loadButton;
+buttonStruct leftButton;
+buttonStruct rightButton;
+buttonStruct upButton;
+buttonStruct downButton;
 
 // ** Global Variables ** //
 enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
@@ -134,21 +143,99 @@ int ak4386Init()
     return 0;
 }
 
-inline int readButtons()
+void readButtons()
 {
-    int buttons = 0;
+    int status = BTN1;
+    updateButton(&rewindButton, &ctrlRewind, status);
+    status = BTN2;
+    updateButton(&playButton, &ctrlPlay, status);
+    status = BTN3;
+    updateButton(&fastForwardButton, &ctrlFastForward, status);
+    status = BTN4;
+    updateButton(&loadButton, &ctrlLoad, status);
+    status = BTN5;
+    updateButton(&saveButton, &ctrlSave, status);
+    status = BTN6;
+    updateButton(&leftButton, &ctrlLeft, status);
+    status = BTN7;
+    updateButton(&upButton, &ctrlUp, status);
+    status = BTN8;
+    updateButton(&rightButton, &ctrlRight, status);
+    status = BTN9;
+    updateButton(&downButton, &ctrlDown, status);
+}
+
+void ctrlRewind()
+{
+    singleLedControl(28);
+}
+
+void ctrlPlay()
+{
+    singleLedControl(29);
+}
+
+void ctrlFastForward()
+{
+    singleLedControl(30);
+}
+
+void ctrlLoad()
+{
+    singleLedControl(31);
+}
+
+void ctrlSave()
+{
+    singleLedControl(32);
+}
+
+void ctrlLeft()
+{
+    singleLedControl(33);
+}
+
+void ctrlRight()
+{
+    singleLedControl(34);
+}
+
+void ctrlUp()
+{
+    singleLedControl(0);
+}
+
+void ctrlDown()
+{
+    singleLedControl(1);
+}
+
+void updateButton(buttonStruct *button, void (*functionPtr)(), int status)
+{
+    if(status == 0){    // Button is pressed
+        button->isPressed = 1;
+        button->isReleased = 0;
+        button->pressDuration++;
+        button->releaseDuration = 0;
+        
+        if((button->pressDuration > BTN_DURATION) && (button->isActive == 0)){
+            (*functionPtr)();
+            button->isActive = 1;
+        }
+        
+        return;
+    }
     
-    if(BTN1 == 0) buttons |= 0x0001;
-    if(BTN2 == 0) buttons |= 0x0002;
-    if(BTN3 == 0) buttons |= 0x0004;
-    if(BTN4 == 0) buttons |= 0x0008;
-    if(BTN5 == 0) buttons |= 0x0010;
-    if(BTN6 == 0) buttons |= 0x0020;
-    if(BTN7 == 0) buttons |= 0x0040;
-    if(BTN8 == 0) buttons |= 0x0080;
-    if(BTN9 == 0) buttons |= 0x0100;
-    
-    return buttons;
+    if(status == 1){    // Button is released
+        button->isPressed = 0;
+        button->isReleased = 1;
+        button->pressDuration = 0;
+        button->releaseDuration++;
+        
+        if((button->releaseDuration > BTN_DURATION) &&(button->isActive = 1)){
+            button->isActive = 0;
+        }
+    }
 }
 
 void ledsOff()
