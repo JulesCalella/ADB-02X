@@ -45,6 +45,8 @@ void defaultWaveformInit();
 
 void playNoteA(int *value, int currentElement);
 
+void readControlArray(int *toReadArray);
+
 
 #endif	/* DSPIC33CH512MP506_AUDIO_H */
 

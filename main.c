@@ -308,11 +308,9 @@ int main(void)
     
     singleLedControl(30);
     
-    int buttonValues = 0;
-    
     while(1)
     {
-        readButtons();
+        updateInterface();
     }
     
     return 0;

@@ -75,7 +75,7 @@ extern enum ledNames;
 extern int ledControlEnabled;
 
 #define BTN_DURATION 100
-
+#define BTN_HOLD_DURATION 10000
 typedef struct {
     int isPressed;
     int isReleased;
@@ -100,6 +100,20 @@ int ak4386Init();
  * 
  * 0 0 0 0 - 0 0 0 B9 - B8 B7 B6 B5 - B4 B3 B2 B1 */
 void readButtons();
+
+void ctrlRewind(int buttonHold);
+void ctrlPlay(int buttonHold);
+void ctrlFastForward(int buttonHold);
+void ctrlLoad(int buttonHold);
+void ctrlSave(int buttonHold);
+void ctrlLeft(int buttonHold);
+void ctrlRight(int buttonHold);
+void ctrlUp(int buttonHold);
+void ctrlDown(int buttonHold);
+void updateButton(buttonStruct *button, void (*functionPtr)(), int status);
+void updateInterface();
+void updateAmplitude(int arrayIndex);
+void updateNumberDisplay();
 
 void ledsOff();
 
@@ -176,16 +190,7 @@ void set_wp(int selection);
 
 void ledDeviceFail();
 
-void ctrlRewind();
-void ctrlPlay();
-void ctrlFastForward();
-void ctrlLoad();
-void ctrlSave();
-void ctrlLeft();
-void ctrlRight();
-void ctrlUp();
-void ctrlDown();
-void updateButton(buttonStruct *button, void (*functionPtr)(), int status);
+
 
 #endif	/* DSPIC33CH512MP506_PINS_H */
 

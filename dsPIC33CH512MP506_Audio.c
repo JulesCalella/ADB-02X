@@ -16,6 +16,11 @@
  * 10 - Square Wave Amplitude
  * 11 - Triangle Wave Amplitude
  * 12 - Sawtooth Wave Amplitude
+ * 13 - Attack Value
+ * 14 - Release Value
+ * 15 - Function 1
+ * 16 - Function 2
+ * 17 - Function 3
  * */
 
 int c1Waveform[C1_BUFF_SIZE];
@@ -30,7 +35,7 @@ int gSharp1Waveform[GSh1_BUFF_SIZE];
 int a1Waveform[A1_BUFF_SIZE];
 int aSharp1Waveform[ASh1_BUFF_SIZE];
 int b1Waveform[B1_BUFF_SIZE];
-int controlArray[13];
+int controlArray[18];
 
 /*
  * 
@@ -229,9 +234,22 @@ void defaultWaveformInit()
     controlArray[10] = 0;
     controlArray[11] = 0;
     controlArray[12] = 0;
+    controlArray[13] = 50;
+    controlArray[14] = 50;
+    controlArray[15] = 0;
+    controlArray[16] = 0;
+    controlArray[17] = 0;
 }
 
 void playNoteA(int *value, int currentElement)
 {
     *value = a1Waveform[currentElement];
+}
+
+void readControlArray(int *toReadArray)
+{
+    int i;
+    for(i=0; i<18; i++){
+        toReadArray[i] = controlArray[i];
+    }
 }

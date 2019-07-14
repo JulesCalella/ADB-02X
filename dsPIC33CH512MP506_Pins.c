@@ -1,8 +1,9 @@
 #include <xc.h>
 #include <p33CH512MP506.h>
 #include "dsPIC33CH512MP506_Pins.h"
+#include "dsPIC33CH512MP506_Audio.h"
 
-buttonStruct playButton;
+buttonStruct playPauseButton;
 buttonStruct rewindButton;
 buttonStruct fastForwardButton;
 buttonStruct saveButton;
@@ -21,7 +22,12 @@ enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
               d24e, d24d, d24c, d24b, d24a, d24f, d24g};
               
 int ledControlEnabled = 1;
-
+int ledControlArray[42];
+int currentLedOn = 0;
+int numberDisplay;
+int interfaceSelection = 0;
+int selectionAmplitude;
+int audioControlArray[18];
 
 // ** Functions ** //
 int pinInit()
@@ -148,7 +154,7 @@ void readButtons()
     int status = BTN1;
     updateButton(&rewindButton, &ctrlRewind, status);
     status = BTN2;
-    updateButton(&playButton, &ctrlPlay, status);
+    updateButton(&playPauseButton, &ctrlPlay, status);
     status = BTN3;
     updateButton(&fastForwardButton, &ctrlFastForward, status);
     status = BTN4;
@@ -165,52 +171,164 @@ void readButtons()
     updateButton(&downButton, &ctrlDown, status);
 }
 
-void ctrlRewind()
+void ctrlRewind(int buttonHold)
 {
+    // Disable other active states in case multiple buttons are pressed
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    if(buttonHold == 0){
+        
+    }
+    
     singleLedControl(28);
 }
 
-void ctrlPlay()
+void ctrlPlay(int buttonHold)
 {
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
     singleLedControl(29);
 }
 
-void ctrlFastForward()
+void ctrlFastForward(int buttonHold)
 {
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    
     singleLedControl(30);
 }
 
-void ctrlLoad()
+void ctrlLoad(int buttonHold)
 {
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
     singleLedControl(31);
 }
 
-void ctrlSave()
+void ctrlSave(int buttonHold)
 {
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    // Don't save unless the button is held
+    if(buttonHold == 0) return;
+    
     singleLedControl(32);
 }
 
-void ctrlLeft()
+void ctrlLeft(int buttonHold)
 {
-    singleLedControl(33);
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    interfaceSelection--;
+    if(interfaceSelection < 0) interfaceSelection = 19;
+    
+    // UPDATE LEDS
 }
 
-void ctrlRight()
+void ctrlRight(int buttonHold)
 {
-    singleLedControl(34);
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    upButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    interfaceSelection++;
+    if(interfaceSelection > 19) interfaceSelection = 0;
+    
+    // UPDATE LEDS
 }
 
-void ctrlUp()
+void ctrlUp(int buttonHold)
 {
-    singleLedControl(0);
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    downButton.isActive = 0;
+    
+    if(buttonHold == 0){ 
+        selectionAmplitude = 1;
+    } else {
+        selectionAmplitude = 5;
+    }
 }
 
-void ctrlDown()
+void ctrlDown(int buttonHold)
 {
-    singleLedControl(1);
+    // Disable other active states in case multiple buttons are pressed
+    rewindButton.isActive = 0;
+    playPauseButton.isActive = 0;
+    fastForwardButton.isActive = 0;
+    loadButton.isActive = 0;
+    saveButton.isActive = 0;
+    leftButton.isActive = 0;
+    rightButton.isActive = 0;
+    upButton.isActive = 0;
+    
+    if(buttonHold == 0){
+        selectionAmplitude = -1;
+    } else {
+        selectionAmplitude = -5;
+    }
 }
 
-void updateButton(buttonStruct *button, void (*functionPtr)(), int status)
+void updateButton(buttonStruct *button, void (*functionPtr)(int), int status)
 {
     if(status == 0){    // Button is pressed
         button->isPressed = 1;
@@ -218,12 +336,20 @@ void updateButton(buttonStruct *button, void (*functionPtr)(), int status)
         button->pressDuration++;
         button->releaseDuration = 0;
         
+        // First Press
         if((button->pressDuration > BTN_DURATION) && (button->isActive == 0)){
-            (*functionPtr)();
+            (*functionPtr)(0);
             button->isActive = 1;
+            
+            return;
         }
         
-        return;
+        // Continuous Hold
+        if((button->pressDuration > BTN_HOLD_DURATION) && (button->isActive == 1)){
+            (*functionPtr)(1);
+            
+            return;
+        }
     }
     
     if(status == 1){    // Button is released
@@ -235,6 +361,196 @@ void updateButton(buttonStruct *button, void (*functionPtr)(), int status)
         if((button->releaseDuration > BTN_DURATION) &&(button->isActive = 1)){
             button->isActive = 0;
         }
+    }
+}
+
+/* controlArray Values:
+ * 0 - Overtone 1 Amplitude
+ * 1 - Overtone 2 Amplitude
+ * 2 - Overtone 3 Amplitude
+ * 3 - Overtone 4 Amplitude
+ * 4 - Overtone 5 Amplitude
+ * 5 - Overtone 6 Amplitude
+ * 6 - Overtone 7 Amplitude
+ * 7 - Overtone 8 Amplitude
+ * 8 - Overtone 9 Amplitude
+ * 9 - Sine Wave Amplitude
+ * 10 - Square Wave Amplitude
+ * 11 - Triangle Wave Amplitude
+ * 12 - Sawtooth Wave Amplitude
+ * 13 - Attack Value
+ * 14 - Release Value
+ * 15 - Function 1
+ * 16 - Function 2
+ * 17 - Function 3
+ * */
+void updateInterface()
+{
+    readButtons();
+    
+    // Turn off current LED
+    ledControlArray[currentLedOn] = 0;
+    
+    switch(interfaceSelection){
+        case 0: // Sine Wave
+            updateAmplitude(9);
+            ledControlArray[sine] = 1;
+            currentLedOn = sine;
+            break;
+            
+        case 1: // Square Wave
+            updateAmplitude(10);
+            ledControlArray[square] = 1;
+            currentLedOn = square;
+            break;
+            
+        case 2: // Triangle Wave
+            updateAmplitude(11);
+            ledControlArray[triangle] = 1;
+            currentLedOn = triangle;
+            break;
+                    
+        case 3: // Sawtooth Wave
+            updateAmplitude(12);
+            ledControlArray[sawtooth] = 1;
+            currentLedOn = sawtooth;
+            break;
+            
+        case 4: // Attack
+            updateAmplitude(13);
+            ledControlArray[attack] = 1;
+            currentLedOn = attack;
+            break;
+            
+        case 5: // Decay
+            updateAmplitude(14);
+            ledControlArray[decay] = 1;
+            currentLedOn = decay;
+            break;
+            
+        case 6: // BPM
+            
+            ledControlArray[bpm] = 1;
+            currentLedOn = bpm;
+            break;
+            
+        case 7: // Memory
+            
+            ledControlArray[memory] = 1;
+            currentLedOn = memory;
+            break;
+            
+        case 8: // Overtone 1
+            updateAmplitude(0);
+            ledControlArray[one] = 1;
+            currentLedOn = one;
+            break;
+            
+        case 9: // Overtone 2
+            updateAmplitude(1);
+            ledControlArray[two] = 1;
+            currentLedOn = two;
+            break;
+            
+        case 10: // Overtone 3
+            updateAmplitude(2);
+            ledControlArray[three] = 1;
+            currentLedOn = three;
+            break;
+            
+        case 11: // Overtone 4
+            updateAmplitude(3);
+            ledControlArray[four] = 1;
+            currentLedOn = four;
+            break;
+            
+        case 12: // Overtone 5
+            updateAmplitude(4);
+            ledControlArray[five] = 1;
+            currentLedOn = five;
+            break;
+            
+        case 13: // Overtone 6
+            updateAmplitude(5);
+            ledControlArray[six] = 1;
+            currentLedOn = six;
+            break;
+            
+        case 14: // Overtone 7
+            updateAmplitude(6);
+            ledControlArray[seven] = 1;
+            currentLedOn = seven;
+            break;
+            
+        case 15: // Overtone 8
+            updateAmplitude(7);
+            ledControlArray[eight] = 1;
+            currentLedOn = eight;
+            break;
+            
+        case 16: // Overtone 9
+            updateAmplitude(8);
+            ledControlArray[nine] = 1;
+            currentLedOn = nine;
+            break;
+            
+        case 17: // Function 1
+            updateAmplitude(9);
+            ledControlArray[f1] = 1;
+            currentLedOn = f1;
+            break;
+            
+        case 18: // Function 2
+            updateAmplitude(10);
+            ledControlArray[f2] = 1;
+            currentLedOn = f2;
+            break;
+            
+        case 19: // Function 3
+            updateAmplitude(11);
+            ledControlArray[f3] = 1;
+            currentLedOn = f3;
+            break;
+    }
+    
+    updateNumberDisplay();
+}
+
+void updateAmplitude(int arrayIndex)
+{
+    audioControlArray[arrayIndex] += selectionAmplitude;
+    if(audioControlArray[arrayIndex] > 100) audioControlArray[arrayIndex] = 100;
+    if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
+    numberDisplay = audioControlArray[arrayIndex];
+    selectionAmplitude = 0;
+}
+
+void updateNumberDisplay()
+{
+    // Update the seven segment displays
+    int ones, tens, hundreds;
+    ones = numberDisplay % 10;
+    tens = (numberDisplay / 10) % 10;
+    hundreds = (numberDisplay / 100) % 10;
+    
+    switch(ones){
+        case 0:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 1;
+            ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 1;
+            break;
+    }
+    
+    switch(tens){
+        
+    }
+    
+    switch(hundreds){
+        
     }
 }
 
@@ -946,156 +1262,69 @@ void ledDisplaySequence()
     
     ledControlDisable();
     
-    singleLedControl(0); 
-    ledTimeDelay(delay);
-    singleLedControl(1); 
-    ledTimeDelay(delay);
-    singleLedControl(2); 
-    ledTimeDelay(delay);
-    singleLedControl(3); 
-    ledTimeDelay(delay);
-    singleLedControl(4); 
-    ledTimeDelay(delay);
-    singleLedControl(5); 
-    ledTimeDelay(delay);
-    singleLedControl(6); 
-    ledTimeDelay(delay);
-    singleLedControl(7); 
-    ledTimeDelay(delay);
-    singleLedControl(8); 
-    ledTimeDelay(delay);
-    singleLedControl(9); 
-    ledTimeDelay(delay);
-    singleLedControl(10); 
-    ledTimeDelay(delay);
-    singleLedControl(11); 
-    ledTimeDelay(delay);
-    singleLedControl(12); 
-    ledTimeDelay(delay);
-    singleLedControl(13); 
-    ledTimeDelay(delay);
-    singleLedControl(14); 
-    ledTimeDelay(delay);
-    singleLedControl(15); 
-    ledTimeDelay(delay);
-    singleLedControl(16); 
-    ledTimeDelay(delay);
-    singleLedControl(17); 
-    ledTimeDelay(delay);
-    singleLedControl(18); 
-    ledTimeDelay(delay);
-    singleLedControl(19); 
-    ledTimeDelay(delay);
-    singleLedControl(20); 
-    ledTimeDelay(delay);
-    singleLedControl(21); 
-    ledTimeDelay(delay);
-    singleLedControl(22); 
-    ledTimeDelay(delay);
-    singleLedControl(23); 
-    ledTimeDelay(delay);
-    singleLedControl(24); 
-    ledTimeDelay(delay);
-    singleLedControl(25); 
-    ledTimeDelay(delay);
-    singleLedControl(26); 
-    ledTimeDelay(delay);
-    singleLedControl(27); 
-    ledTimeDelay(delay);
-    singleLedControl(28); 
-    ledTimeDelay(delay);
-    singleLedControl(29); 
-    ledTimeDelay(delay);
-    singleLedControl(30); 
-    ledTimeDelay(delay);
-    singleLedControl(31); 
-    ledTimeDelay(delay);
-    singleLedControl(32); 
-    ledTimeDelay(delay);
-    singleLedControl(33); 
-    ledTimeDelay(delay);
-    singleLedControl(34); 
-    ledTimeDelay(delay);
-    singleLedControl(35); 
-    ledTimeDelay(delay);
-    singleLedControl(36); 
-    ledTimeDelay(delay);
-    singleLedControl(37); 
-    ledTimeDelay(delay);
-    singleLedControl(38); 
-    ledTimeDelay(delay);
-    singleLedControl(39); 
-    ledTimeDelay(delay);
-    singleLedControl(40); 
-    ledTimeDelay(delay);
-    singleLedControl(41); 
-    ledTimeDelay(delay);
-    singleLedControl(42); 
-    ledTimeDelay(delay);
-    
-//    singleLedControl(one); ledTimeDelay(delay);
-//    singleLedControl(sine); ledTimeDelay(delay);
-//    singleLedControl(two); ledTimeDelay(delay);
-//    singleLedControl(square); ledTimeDelay(delay);
-//    singleLedControl(three); ledTimeDelay(delay);
-//    singleLedControl(triangle); ledTimeDelay(delay);
-//    singleLedControl(four); ledTimeDelay(delay);
-//    singleLedControl(sawtooth); ledTimeDelay(delay);
-//    singleLedControl(five); ledTimeDelay(delay);
-//    singleLedControl(attack); ledTimeDelay(delay);
-//    singleLedControl(six); ledTimeDelay(delay);
-//    singleLedControl(decay); ledTimeDelay(delay);
-//    singleLedControl(seven); ledTimeDelay(delay);
-//    singleLedControl(bpm); ledTimeDelay(delay);
-//    singleLedControl(eight); ledTimeDelay(delay);
-//    singleLedControl(memory); ledTimeDelay(delay);
-//    singleLedControl(nine); ledTimeDelay(delay);
-//    singleLedControl(tempo); ledTimeDelay(delay);
-//    singleLedControl(memory); ledTimeDelay(delay);
-//    singleLedControl(bpm); ledTimeDelay(delay);
-//    singleLedControl(decay); ledTimeDelay(delay);
-//    singleLedControl(attack); ledTimeDelay(delay);
-//    singleLedControl(sawtooth); ledTimeDelay(delay);
-//    singleLedControl(triangle); ledTimeDelay(delay);
-//    singleLedControl(square); ledTimeDelay(delay);
-//    singleLedControl(sine); ledTimeDelay(delay);
-//    singleLedControl(one); ledTimeDelay(delay);
-//    singleLedControl(two); ledTimeDelay(delay);
-//    singleLedControl(three); ledTimeDelay(delay);
-//    singleLedControl(four); ledTimeDelay(delay);
-//    singleLedControl(five); ledTimeDelay(delay);
-//    singleLedControl(six); ledTimeDelay(delay);
-//    singleLedControl(seven); ledTimeDelay(delay);
-//    singleLedControl(eight); ledTimeDelay(delay);
-//    singleLedControl(nine); ledTimeDelay(delay);
-//    singleLedControl(f1); ledTimeDelay(delay);
-//    singleLedControl(f2); ledTimeDelay(delay);
-//    singleLedControl(f3); ledTimeDelay(delay);
-//    singleLedControl(d22d); ledTimeDelay(delay);
-//    singleLedControl(d22c); ledTimeDelay(delay);
-//    singleLedControl(d22g); ledTimeDelay(delay);
-//    singleLedControl(d22f); ledTimeDelay(delay);
-//    singleLedControl(d22a); ledTimeDelay(delay);
-//    singleLedControl(d23a); ledTimeDelay(delay);
-//    singleLedControl(d23b); ledTimeDelay(delay);
-//    singleLedControl(d23g); ledTimeDelay(delay);
-//    singleLedControl(d23e); ledTimeDelay(delay);
-//    singleLedControl(d23d); ledTimeDelay(delay);
-//    singleLedControl(d24d); ledTimeDelay(delay);
-//    singleLedControl(d24c); ledTimeDelay(delay);
-//    singleLedControl(d24g); ledTimeDelay(delay);
-//    singleLedControl(d24f); ledTimeDelay(delay);
-//    singleLedControl(d24a); ledTimeDelay(delay);
-//    singleLedControl(d24b); ledTimeDelay(delay);
-//    singleLedControl(d24c); ledTimeDelay(delay);
-//    singleLedControl(d24d); ledTimeDelay(delay);
-//    singleLedControl(d23d); ledTimeDelay(delay);
-//    singleLedControl(d22d); ledTimeDelay(delay);
-//    singleLedControl(f3); ledTimeDelay(delay);
-//    singleLedControl(f2); ledTimeDelay(delay);
-//    singleLedControl(f1); ledTimeDelay(delay);
-//    singleLedControl(nine); ledTimeDelay(delay);
-//    singleLedControl(tempo); ledTimeDelay(delay);
+    singleLedControl(one); ledTimeDelay(delay);
+    singleLedControl(sine); ledTimeDelay(delay);
+    singleLedControl(two); ledTimeDelay(delay);
+    singleLedControl(square); ledTimeDelay(delay);
+    singleLedControl(three); ledTimeDelay(delay);
+    singleLedControl(triangle); ledTimeDelay(delay);
+    singleLedControl(four); ledTimeDelay(delay);
+    singleLedControl(sawtooth); ledTimeDelay(delay);
+    singleLedControl(five); ledTimeDelay(delay);
+    singleLedControl(attack); ledTimeDelay(delay);
+    singleLedControl(six); ledTimeDelay(delay);
+    singleLedControl(decay); ledTimeDelay(delay);
+    singleLedControl(seven); ledTimeDelay(delay);
+    singleLedControl(bpm); ledTimeDelay(delay);
+    singleLedControl(eight); ledTimeDelay(delay);
+    singleLedControl(memory); ledTimeDelay(delay);
+    singleLedControl(nine); ledTimeDelay(delay);
+    singleLedControl(tempo); ledTimeDelay(delay);
+    singleLedControl(memory); ledTimeDelay(delay);
+    singleLedControl(bpm); ledTimeDelay(delay);
+    singleLedControl(decay); ledTimeDelay(delay);
+    singleLedControl(attack); ledTimeDelay(delay);
+    singleLedControl(sawtooth); ledTimeDelay(delay);
+    singleLedControl(triangle); ledTimeDelay(delay);
+    singleLedControl(square); ledTimeDelay(delay);
+    singleLedControl(sine); ledTimeDelay(delay);
+    singleLedControl(one); ledTimeDelay(delay);
+    singleLedControl(two); ledTimeDelay(delay);
+    singleLedControl(three); ledTimeDelay(delay);
+    singleLedControl(four); ledTimeDelay(delay);
+    singleLedControl(five); ledTimeDelay(delay);
+    singleLedControl(six); ledTimeDelay(delay);
+    singleLedControl(seven); ledTimeDelay(delay);
+    singleLedControl(eight); ledTimeDelay(delay);
+    singleLedControl(nine); ledTimeDelay(delay);
+    singleLedControl(f1); ledTimeDelay(delay);
+    singleLedControl(f2); ledTimeDelay(delay);
+    singleLedControl(f3); ledTimeDelay(delay);
+    singleLedControl(d22d); ledTimeDelay(delay);
+    singleLedControl(d22c); ledTimeDelay(delay);
+    singleLedControl(d22g); ledTimeDelay(delay);
+    singleLedControl(d22f); ledTimeDelay(delay);
+    singleLedControl(d22a); ledTimeDelay(delay);
+    singleLedControl(d23a); ledTimeDelay(delay);
+    singleLedControl(d23b); ledTimeDelay(delay);
+    singleLedControl(d23g); ledTimeDelay(delay);
+    singleLedControl(d23e); ledTimeDelay(delay);
+    singleLedControl(d23d); ledTimeDelay(delay);
+    singleLedControl(d24d); ledTimeDelay(delay);
+    singleLedControl(d24c); ledTimeDelay(delay);
+    singleLedControl(d24g); ledTimeDelay(delay);
+    singleLedControl(d24f); ledTimeDelay(delay);
+    singleLedControl(d24a); ledTimeDelay(delay);
+    singleLedControl(d24b); ledTimeDelay(delay);
+    singleLedControl(d24c); ledTimeDelay(delay);
+    singleLedControl(d24d); ledTimeDelay(delay);
+    singleLedControl(d23d); ledTimeDelay(delay);
+    singleLedControl(d22d); ledTimeDelay(delay);
+    singleLedControl(f3); ledTimeDelay(delay);
+    singleLedControl(f2); ledTimeDelay(delay);
+    singleLedControl(f1); ledTimeDelay(delay);
+    singleLedControl(nine); ledTimeDelay(delay);
+    singleLedControl(tempo); ledTimeDelay(delay);
     ledsOff();ledTimeDelay(delay);
     
     ledControlEnable();
