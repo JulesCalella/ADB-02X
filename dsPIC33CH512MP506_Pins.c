@@ -14,7 +14,7 @@ buttonStruct upButton;
 buttonStruct downButton;
 
 // ** Global Variables ** //
-enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
+enum ledNames{sine = 0, sawtooth, instrument, one, four, seven, f1,
               square, attack, memory, two, five, eight, f2,
               triangle, decay, tempo, three, six, nine, f3,
               d22e, d22d, d22c, d22b, d22a, d22f, d22g,
@@ -230,7 +230,17 @@ void ctrlLoad(int buttonHold)
     upButton.isActive = 0;
     downButton.isActive = 0;
     
+    // Prevent accidental loading
+    if(buttonHold == 0) return;
+    
+    if(interfaceSelection == memory){
+        // Load Song from EEPROM
+    } else if(interfaceSelection == instrument){
+        // Load Instrument from EEPROM
+    }
+    
     readControlArray(audioControlArray);
+    selectionChanged = 1;
 }
 
 void ctrlSave(int buttonHold)
@@ -247,6 +257,15 @@ void ctrlSave(int buttonHold)
     
     // Don't save unless the button is held
     if(buttonHold == 0) return;
+    
+    if(interfaceSelection == memory){
+        // Save song to EEPROM
+    } else if(interfaceSelection == instrument){
+        // Save instrument to EEPROM
+    }
+    
+    writeControlArray(audioControlArray);
+    selectionChanged = 1;
 }
 
 void ctrlLeft(int buttonHold)
@@ -425,9 +444,9 @@ void updateInterface()
                 updateLeds(decay);
                 break;
 
-            case 6: // BPM
+            case 6: // Instrument
 
-                updateLeds(bpm);
+                updateLeds(instrument);
                 break;
 
             case 7: // Memory
@@ -1569,7 +1588,7 @@ void ledDisplaySequence()
     
     singleLedControl(tempo); ledTimeDelay(delay);
     singleLedControl(memory); ledTimeDelay(delay);
-    singleLedControl(bpm); ledTimeDelay(delay);
+    singleLedControl(instrument); ledTimeDelay(delay);
     singleLedControl(decay); ledTimeDelay(delay);
     singleLedControl(attack); ledTimeDelay(delay);
     singleLedControl(sawtooth); ledTimeDelay(delay);

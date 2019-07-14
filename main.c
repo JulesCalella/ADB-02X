@@ -299,7 +299,7 @@ int main(void)
     i2c2On();
     uart1On();    
     
-    ledDisplaySequence();
+    //ledDisplaySequence();
     
     ledsOff();
     

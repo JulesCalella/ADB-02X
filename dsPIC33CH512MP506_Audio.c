@@ -253,3 +253,11 @@ void readControlArray(int *toReadArray)
         toReadArray[i] = controlArray[i];
     }
 }
+
+void writeControlArray(int *toWriteArray)
+{
+    int i;
+    for(i=0; i<18; i++){
+        controlArray[i] = toWriteArray[i];
+    }
+}

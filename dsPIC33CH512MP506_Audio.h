@@ -47,6 +47,7 @@ void playNoteA(int *value, int currentElement);
 
 void readControlArray(int *toReadArray);
 
+void writeControlArray(int *toWriteArray);
 
 #endif	/* DSPIC33CH512MP506_AUDIO_H */
 
