@@ -21,13 +21,17 @@ enum ledNames{sine = 0, sawtooth, bpm, one, four, seven, f1,
               d23e, d23d, d23c, d23b, d23a, d23f, d23g,
               d24e, d24d, d24c, d24b, d24a, d24f, d24g};
               
+int currentLed = 0;
 int ledControlEnabled = 1;
 int ledControlArray[42];
 int currentLedOn = 0;
 int numberDisplay;
 int interfaceSelection = 0;
 int selectionAmplitude;
+int selectionChanged = 1;
 int audioControlArray[18];
+
+int tempCounter = 0;
 
 // ** Functions ** //
 int pinInit()
@@ -186,8 +190,6 @@ void ctrlRewind(int buttonHold)
     if(buttonHold == 0){
         
     }
-    
-    singleLedControl(28);
 }
 
 void ctrlPlay(int buttonHold)
@@ -201,8 +203,6 @@ void ctrlPlay(int buttonHold)
     rightButton.isActive = 0;
     upButton.isActive = 0;
     downButton.isActive = 0;
-    
-    singleLedControl(29);
 }
 
 void ctrlFastForward(int buttonHold)
@@ -216,9 +216,6 @@ void ctrlFastForward(int buttonHold)
     rightButton.isActive = 0;
     upButton.isActive = 0;
     downButton.isActive = 0;
-    
-    
-    singleLedControl(30);
 }
 
 void ctrlLoad(int buttonHold)
@@ -233,7 +230,7 @@ void ctrlLoad(int buttonHold)
     upButton.isActive = 0;
     downButton.isActive = 0;
     
-    singleLedControl(31);
+    readControlArray(audioControlArray);
 }
 
 void ctrlSave(int buttonHold)
@@ -250,8 +247,6 @@ void ctrlSave(int buttonHold)
     
     // Don't save unless the button is held
     if(buttonHold == 0) return;
-    
-    singleLedControl(32);
 }
 
 void ctrlLeft(int buttonHold)
@@ -268,6 +263,8 @@ void ctrlLeft(int buttonHold)
     
     interfaceSelection--;
     if(interfaceSelection < 0) interfaceSelection = 19;
+    
+    selectionChanged = 1;
     
     // UPDATE LEDS
 }
@@ -286,6 +283,8 @@ void ctrlRight(int buttonHold)
     
     interfaceSelection++;
     if(interfaceSelection > 19) interfaceSelection = 0;
+    
+    selectionChanged = 1;
     
     // UPDATE LEDS
 }
@@ -307,6 +306,8 @@ void ctrlUp(int buttonHold)
     } else {
         selectionAmplitude = 5;
     }
+    
+    selectionChanged = 1;
 }
 
 void ctrlDown(int buttonHold)
@@ -326,6 +327,8 @@ void ctrlDown(int buttonHold)
     } else {
         selectionAmplitude = -5;
     }
+    
+    selectionChanged = 1;
 }
 
 void updateButton(buttonStruct *button, void (*functionPtr)(int), int status)
@@ -347,7 +350,7 @@ void updateButton(buttonStruct *button, void (*functionPtr)(int), int status)
         // Continuous Hold
         if((button->pressDuration > BTN_HOLD_DURATION) && (button->isActive == 1)){
             (*functionPtr)(1);
-            
+            button->pressDuration -= BTN_HOLD_DURATION / 2;
             return;
         }
     }
@@ -388,132 +391,127 @@ void updateInterface()
 {
     readButtons();
     
-    // Turn off current LED
-    ledControlArray[currentLedOn] = 0;
-    
-    switch(interfaceSelection){
-        case 0: // Sine Wave
-            updateAmplitude(9);
-            ledControlArray[sine] = 1;
-            currentLedOn = sine;
-            break;
-            
-        case 1: // Square Wave
-            updateAmplitude(10);
-            ledControlArray[square] = 1;
-            currentLedOn = square;
-            break;
-            
-        case 2: // Triangle Wave
-            updateAmplitude(11);
-            ledControlArray[triangle] = 1;
-            currentLedOn = triangle;
-            break;
-                    
-        case 3: // Sawtooth Wave
-            updateAmplitude(12);
-            ledControlArray[sawtooth] = 1;
-            currentLedOn = sawtooth;
-            break;
-            
-        case 4: // Attack
-            updateAmplitude(13);
-            ledControlArray[attack] = 1;
-            currentLedOn = attack;
-            break;
-            
-        case 5: // Decay
-            updateAmplitude(14);
-            ledControlArray[decay] = 1;
-            currentLedOn = decay;
-            break;
-            
-        case 6: // BPM
-            
-            ledControlArray[bpm] = 1;
-            currentLedOn = bpm;
-            break;
-            
-        case 7: // Memory
-            
-            ledControlArray[memory] = 1;
-            currentLedOn = memory;
-            break;
-            
-        case 8: // Overtone 1
-            updateAmplitude(0);
-            ledControlArray[one] = 1;
-            currentLedOn = one;
-            break;
-            
-        case 9: // Overtone 2
-            updateAmplitude(1);
-            ledControlArray[two] = 1;
-            currentLedOn = two;
-            break;
-            
-        case 10: // Overtone 3
-            updateAmplitude(2);
-            ledControlArray[three] = 1;
-            currentLedOn = three;
-            break;
-            
-        case 11: // Overtone 4
-            updateAmplitude(3);
-            ledControlArray[four] = 1;
-            currentLedOn = four;
-            break;
-            
-        case 12: // Overtone 5
-            updateAmplitude(4);
-            ledControlArray[five] = 1;
-            currentLedOn = five;
-            break;
-            
-        case 13: // Overtone 6
-            updateAmplitude(5);
-            ledControlArray[six] = 1;
-            currentLedOn = six;
-            break;
-            
-        case 14: // Overtone 7
-            updateAmplitude(6);
-            ledControlArray[seven] = 1;
-            currentLedOn = seven;
-            break;
-            
-        case 15: // Overtone 8
-            updateAmplitude(7);
-            ledControlArray[eight] = 1;
-            currentLedOn = eight;
-            break;
-            
-        case 16: // Overtone 9
-            updateAmplitude(8);
-            ledControlArray[nine] = 1;
-            currentLedOn = nine;
-            break;
-            
-        case 17: // Function 1
-            updateAmplitude(9);
-            ledControlArray[f1] = 1;
-            currentLedOn = f1;
-            break;
-            
-        case 18: // Function 2
-            updateAmplitude(10);
-            ledControlArray[f2] = 1;
-            currentLedOn = f2;
-            break;
-            
-        case 19: // Function 3
-            updateAmplitude(11);
-            ledControlArray[f3] = 1;
-            currentLedOn = f3;
-            break;
+    if(selectionChanged != 0){
+        selectionChanged = 0;
+        
+        switch(interfaceSelection){
+            case 0: // Sine Wave
+                updateAmplitude(9);
+                updateLeds(sine);
+                break;
+
+            case 1: // Square Wave
+                updateAmplitude(10);
+                updateLeds(square);
+                break;
+
+            case 2: // Triangle Wave
+                updateAmplitude(11);
+                updateLeds(triangle);
+                break;
+
+            case 3: // Sawtooth Wave
+                updateAmplitude(12);
+                updateLeds(sawtooth);
+                break;
+
+            case 4: // Attack
+                updateAmplitude(13);
+                updateLeds(attack);
+                break;
+
+            case 5: // Decay
+                updateAmplitude(14);
+                updateLeds(decay);
+                break;
+
+            case 6: // BPM
+
+                updateLeds(bpm);
+                break;
+
+            case 7: // Memory
+
+                updateLeds(memory);
+                break;
+
+            case 8: // Overtone 1
+                updateAmplitude(0);
+                updateLeds(one);
+                break;
+
+            case 9: // Overtone 2
+                updateAmplitude(1);
+                updateLeds(two);
+                break;
+
+            case 10: // Overtone 3
+                updateAmplitude(2);
+                updateLeds(three);
+                break;
+
+            case 11: // Overtone 4
+                updateAmplitude(3);
+                updateLeds(four);
+                break;
+
+            case 12: // Overtone 5
+                updateAmplitude(4);
+                updateLeds(five);
+                break;
+
+            case 13: // Overtone 6
+                updateAmplitude(5);
+                updateLeds(six);
+                break;
+
+            case 14: // Overtone 7
+                updateAmplitude(6);
+                updateLeds(seven);
+                break;
+
+            case 15: // Overtone 8
+                updateAmplitude(7);
+                updateLeds(eight);
+                break;
+
+            case 16: // Overtone 9
+                updateAmplitude(8);
+                updateLeds(nine);
+                break;
+
+            case 17: // Function 1
+                updateAmplitude(9);
+                updateLeds(f1);
+                break;
+
+            case 18: // Function 2
+                updateAmplitude(10);
+                updateLeds(f2);
+                break;
+
+            case 19: // Function 3
+                updateAmplitude(11);
+                updateLeds(f3);
+                break;
+        }
+
+        updateNumberDisplay();
     }
+}
+
+void ledInit()
+{
+    int i;
     
-    updateNumberDisplay();
+    readControlArray(audioControlArray);
+    
+    ledControlArray[0] = 1;
+    interfaceSelection = 0;
+    
+    for(i=1; i<42; i++){
+        ledControlArray[i] = 0;
+    }
 }
 
 void updateAmplitude(int arrayIndex)
@@ -523,6 +521,13 @@ void updateAmplitude(int arrayIndex)
     if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
     numberDisplay = audioControlArray[arrayIndex];
     selectionAmplitude = 0;
+}
+
+void updateLeds(int ledChoice)
+{
+    ledControlArray[currentLedOn] = 0;
+    ledControlArray[ledChoice] = 1;
+    currentLedOn = ledChoice;
 }
 
 void updateNumberDisplay()
@@ -541,16 +546,302 @@ void updateNumberDisplay()
             ledControlArray[d24d] = 1;
             ledControlArray[d24e] = 1;
             ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 0;
+            break;
+            
+        case 1:
+            ledControlArray[d24a] = 0;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 0;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 0;
+            ledControlArray[d24g] = 0;
+            break;
+            
+        case 2:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 0;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 1;
+            ledControlArray[d24f] = 0;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 3:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 0;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 4:
+            ledControlArray[d24a] = 0;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 0;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 5:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 0;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 6:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 0;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 1;
+            ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 7:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 0;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 0;
+            ledControlArray[d24g] = 0;
+            break;
+            
+        case 8:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 1;
+            ledControlArray[d24f] = 1;
+            ledControlArray[d24g] = 1;
+            break;
+            
+        case 9:
+            ledControlArray[d24a] = 1;
+            ledControlArray[d24b] = 1;
+            ledControlArray[d24c] = 1;
+            ledControlArray[d24d] = 1;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 1;
             ledControlArray[d24g] = 1;
             break;
     }
     
     switch(tens){
-        
+        case 0:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 1;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 0;
+            break;
+            
+        case 1:
+            ledControlArray[d23a] = 0;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 0;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 0;
+            ledControlArray[d23g] = 0;
+            break;
+            
+        case 2:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 0;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 1;
+            ledControlArray[d23f] = 0;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 3:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 0;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 4:
+            ledControlArray[d23a] = 0;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 0;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 5:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 0;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 6:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 0;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 1;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 7:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 0;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 0;
+            ledControlArray[d23g] = 0;
+            break;
+            
+        case 8:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 1;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 1;
+            break;
+            
+        case 9:
+            ledControlArray[d23a] = 1;
+            ledControlArray[d23b] = 1;
+            ledControlArray[d23c] = 1;
+            ledControlArray[d23d] = 1;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 1;
+            ledControlArray[d23g] = 1;
+            break;
     }
     
     switch(hundreds){
-        
+        case 0:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 1;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 0;
+            break;
+            
+        case 1:
+            ledControlArray[d22a] = 0;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 0;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 0;
+            ledControlArray[d22g] = 0;
+            break;
+            
+        case 2:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 0;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 1;
+            ledControlArray[d22f] = 0;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 3:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 0;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 4:
+            ledControlArray[d22a] = 0;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 0;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 5:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 0;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 6:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 0;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 1;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 7:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 0;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 0;
+            ledControlArray[d22g] = 0;
+            break;
+            
+        case 8:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 1;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 1;
+            break;
+            
+        case 9:
+            ledControlArray[d22a] = 1;
+            ledControlArray[d22b] = 1;
+            ledControlArray[d22c] = 1;
+            ledControlArray[d22d] = 1;
+            ledControlArray[d22e] = 0;
+            ledControlArray[d22f] = 1;
+            ledControlArray[d22g] = 1;
+            break;
     }
 }
 
@@ -810,9 +1101,23 @@ void singleLedControl(int currentLed)
     }
 }
 
-void ledControl(int currentLed, int *ledIsOn)
+// TEMPORARY FUNCTION FOR TESTING LEDS
+void currentLedIncrement()
 {
-    if(ledControlEnabled == 0) return;
+    tempCounter++;
+    
+    if(tempCounter > 10){
+        ledControl();
+        currentLed++;
+        if(currentLed >= 42) currentLed = 0;
+        tempCounter = 0;
+    }
+    
+}
+
+void ledControl()
+{
+    //if(ledControlEnabled == 0) return;
     
     switch(currentLed){
     // ** CTRL1 ** //
@@ -822,7 +1127,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL1 = 1;
             
-            if(ledIsOn[0] == 1){
+            if(ledControlArray[0] == 1){
                 LED1 = 1;
             }
             
@@ -832,7 +1137,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 1:
             LED1 = 0;
             
-            if(ledIsOn[1] == 1){
+            if(ledControlArray[1] == 1){
                 LED2 = 1;
             }
             
@@ -842,7 +1147,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 2:
             LED2 = 0;
             
-            if(ledIsOn[2] == 1){
+            if(ledControlArray[2] == 1){
                 LED3 = 1;
             }
             
@@ -852,7 +1157,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 3:
             LED3 = 0;
             
-            if(ledIsOn[3] == 1){
+            if(ledControlArray[3] == 1){
                 LED4 = 1;
             }
             
@@ -862,7 +1167,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 4:
             LED4 = 0;
             
-            if(ledIsOn[4] == 1){
+            if(ledControlArray[4] == 1){
                 LED5 = 1;
             }
             
@@ -872,7 +1177,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 5:
             LED5 = 0;
             
-            if(ledIsOn[5] == 1){
+            if(ledControlArray[5] == 1){
                 LED6 = 1;
             }
             
@@ -882,7 +1187,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 6:
             LED6 = 0;
             
-            if(ledIsOn[6] == 1){
+            if(ledControlArray[6] == 1){
                 LED7 = 1;
             }
             
@@ -896,7 +1201,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL2 = 1;
             
-            if(ledIsOn[7] == 1){
+            if(ledControlArray[7] == 1){
                 LED1 = 1;
             }
             
@@ -906,7 +1211,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 8:
             LED1 = 0;
             
-            if(ledIsOn[8] == 1){
+            if(ledControlArray[8] == 1){
                 LED2 = 1;
             }
             
@@ -916,7 +1221,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 9:
             LED2 = 0;
             
-            if(ledIsOn[9] == 1){
+            if(ledControlArray[9] == 1){
                 LED3 = 1;
             }
             
@@ -926,7 +1231,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 10:
             LED3 = 0;
             
-            if(ledIsOn[10] == 1){
+            if(ledControlArray[10] == 1){
                 LED4 = 1;
             }
             
@@ -936,7 +1241,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 11:
             LED4 = 0;
             
-            if(ledIsOn[11] == 1){
+            if(ledControlArray[11] == 1){
                 LED5 = 1;
             }
             
@@ -946,7 +1251,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 12:
             LED5 = 0;
             
-            if(ledIsOn[12] == 1){
+            if(ledControlArray[12] == 1){
                 LED6 = 1;
             }
             
@@ -956,7 +1261,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 13:
             LED6 = 0;
             
-            if(ledIsOn[13] == 1){
+            if(ledControlArray[13] == 1){
                 LED7 = 1;
             }
             
@@ -969,7 +1274,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL3 = 1;
             
-            if(ledIsOn[14] == 1){
+            if(ledControlArray[14] == 1){
                 LED1 = 1;
             }
             
@@ -979,7 +1284,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 15:
             LED1 = 0;
             
-            if(ledIsOn[15] == 1){
+            if(ledControlArray[15] == 1){
                 LED2 = 1;
             }
             
@@ -989,7 +1294,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 16:
             LED2 = 0;
             
-            if(ledIsOn[16] == 1){
+            if(ledControlArray[16] == 1){
                 LED3 = 1;
             }
             
@@ -999,7 +1304,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 17:
             LED3 = 0;
             
-            if(ledIsOn[17] == 1){
+            if(ledControlArray[17] == 1){
                 LED4 = 1;
             }
             
@@ -1009,7 +1314,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 18:
             LED4 = 0;
             
-            if(ledIsOn[18] == 1){
+            if(ledControlArray[18] == 1){
                 LED5 = 1;
             }
             
@@ -1019,7 +1324,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 19:
             LED5 = 0;
             
-            if(ledIsOn[19] == 1){
+            if(ledControlArray[19] == 1){
                 LED6 = 1;
             }
             
@@ -1029,7 +1334,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 20:
             LED6 = 0;
             
-            if(ledIsOn[20] == 1){
+            if(ledControlArray[20] == 1){
                 LED7 = 1;
             }
             
@@ -1042,7 +1347,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL4 = 1;
             
-            if(ledIsOn[21] == 1){
+            if(ledControlArray[21] == 1){
                 LED1 = 1;
             }
             
@@ -1052,7 +1357,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 22:
             LED1 = 0;
             
-            if(ledIsOn[22] == 1){
+            if(ledControlArray[22] == 1){
                 LED2 = 1;
             }
             
@@ -1062,7 +1367,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 23:
             LED2 = 0;
             
-            if(ledIsOn[23] == 1){
+            if(ledControlArray[23] == 1){
                 LED3 = 1;
             }
             
@@ -1072,7 +1377,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 24:
             LED3 = 0;
             
-            if(ledIsOn[24] == 1){
+            if(ledControlArray[24] == 1){
                 LED4 = 1;
             }
             
@@ -1082,7 +1387,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 25:
             LED4 = 0;
             
-            if(ledIsOn[25] == 1){
+            if(ledControlArray[25] == 1){
                 LED5 = 1;
             }
             
@@ -1092,7 +1397,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 26:
             LED5 = 0;
             
-            if(ledIsOn[26] == 1){
+            if(ledControlArray[26] == 1){
                 LED6 = 1;
             }
             
@@ -1102,7 +1407,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 27:
             LED6 = 0;
             
-            if(ledIsOn[27] == 1){
+            if(ledControlArray[27] == 1){
                 LED7 = 1;
             }
             
@@ -1115,7 +1420,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL5 = 1;
             
-            if(ledIsOn[28] == 1){
+            if(ledControlArray[28] == 1){
                 LED1 = 1;
             }
             
@@ -1125,7 +1430,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 29:
             LED1 = 0;
             
-            if(ledIsOn[29] == 1){
+            if(ledControlArray[29] == 1){
                 LED2 = 1;
             }
             
@@ -1135,7 +1440,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 30:
             LED2 = 0;
             
-            if(ledIsOn[30] == 1){
+            if(ledControlArray[30] == 1){
                 LED3 = 1;
             }
             
@@ -1145,7 +1450,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 31:
             LED3 = 0;
             
-            if(ledIsOn[31] == 1){
+            if(ledControlArray[31] == 1){
                 LED4 = 1;
             }
             
@@ -1155,7 +1460,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 32:
             LED4 = 0;
             
-            if(ledIsOn[32] == 1){
+            if(ledControlArray[32] == 1){
                 LED5 = 1;
             }
             
@@ -1165,7 +1470,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 33:
             LED5 = 0;
             
-            if(ledIsOn[33] == 1){
+            if(ledControlArray[33] == 1){
                 LED6 = 1;
             }
             
@@ -1175,7 +1480,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 34:
             LED6 = 0;
             
-            if(ledIsOn[34] == 1){
+            if(ledControlArray[34] == 1){
                 LED7 = 1;
             }
             
@@ -1188,7 +1493,7 @@ void ledControl(int currentLed, int *ledIsOn)
             LED7 = 0;
             CTRL6 = 1;
             
-            if(ledIsOn[35] == 1){
+            if(ledControlArray[35] == 1){
                 LED1 = 1;
             }
             
@@ -1198,7 +1503,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 36:
             LED1 = 0;
             
-            if(ledIsOn[36] == 1){
+            if(ledControlArray[36] == 1){
                 LED2 = 1;
             }
             
@@ -1208,7 +1513,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 37:
             LED2 = 0;
             
-            if(ledIsOn[37] == 1){
+            if(ledControlArray[37] == 1){
                 LED3 = 1;
             }
             
@@ -1218,7 +1523,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 38:
             LED3 = 0;
             
-            if(ledIsOn[38] == 1){
+            if(ledControlArray[38] == 1){
                 LED4 = 1;
             }
             
@@ -1228,7 +1533,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 39:
             LED4 = 0;
             
-            if(ledIsOn[39] == 1){
+            if(ledControlArray[39] == 1){
                 LED5 = 1;
             }
             
@@ -1238,7 +1543,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 40:
             LED5 = 0;
             
-            if(ledIsOn[40] == 1){
+            if(ledControlArray[40] == 1){
                 LED6 = 1;
             }
             
@@ -1248,7 +1553,7 @@ void ledControl(int currentLed, int *ledIsOn)
         case 41:
             LED6 = 0;
             
-            if(ledIsOn[41] == 1){
+            if(ledControlArray[41] == 1){
                 LED7 = 1;
             }
             
@@ -1258,27 +1563,10 @@ void ledControl(int currentLed, int *ledIsOn)
 
 void ledDisplaySequence()
 {
-    int delay = 10;
+    int delay = 5;
     
     ledControlDisable();
     
-    singleLedControl(one); ledTimeDelay(delay);
-    singleLedControl(sine); ledTimeDelay(delay);
-    singleLedControl(two); ledTimeDelay(delay);
-    singleLedControl(square); ledTimeDelay(delay);
-    singleLedControl(three); ledTimeDelay(delay);
-    singleLedControl(triangle); ledTimeDelay(delay);
-    singleLedControl(four); ledTimeDelay(delay);
-    singleLedControl(sawtooth); ledTimeDelay(delay);
-    singleLedControl(five); ledTimeDelay(delay);
-    singleLedControl(attack); ledTimeDelay(delay);
-    singleLedControl(six); ledTimeDelay(delay);
-    singleLedControl(decay); ledTimeDelay(delay);
-    singleLedControl(seven); ledTimeDelay(delay);
-    singleLedControl(bpm); ledTimeDelay(delay);
-    singleLedControl(eight); ledTimeDelay(delay);
-    singleLedControl(memory); ledTimeDelay(delay);
-    singleLedControl(nine); ledTimeDelay(delay);
     singleLedControl(tempo); ledTimeDelay(delay);
     singleLedControl(memory); ledTimeDelay(delay);
     singleLedControl(bpm); ledTimeDelay(delay);

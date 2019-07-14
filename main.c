@@ -303,13 +303,14 @@ int main(void)
     
     ledsOff();
     
-    defaultWaveformInit();
-    generateAllWaveforms();
+    //defaultWaveformInit();
+    //generateAllWaveforms();
     
-    singleLedControl(30);
+    ledInit();
     
     while(1)
     {
+        currentLedIncrement();
         updateInterface();
     }
     

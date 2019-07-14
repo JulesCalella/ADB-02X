@@ -75,7 +75,8 @@ extern enum ledNames;
 extern int ledControlEnabled;
 
 #define BTN_DURATION 100
-#define BTN_HOLD_DURATION 10000
+#define BTN_HOLD_DURATION 30000
+
 typedef struct {
     int isPressed;
     int isReleased;
@@ -112,7 +113,9 @@ void ctrlUp(int buttonHold);
 void ctrlDown(int buttonHold);
 void updateButton(buttonStruct *button, void (*functionPtr)(), int status);
 void updateInterface();
+void ledInit();
 void updateAmplitude(int arrayIndex);
+void updateLeds(int ledChoice);
 void updateNumberDisplay();
 
 void ledsOff();
@@ -139,7 +142,7 @@ void singleLedControl(int ledNumber);
  * 'currentLed' must increment by 1 as it will only disable the previous LED in 
  * the sequence. To control an individual LED, use the function:
  * 'void singleLedControl' */ 
-void ledControl(int currentLed, int *ledIsOn);
+void ledControl();
 
 /* [LED DISPLAY SEQUENCE] displays an entertaining LED show. */
 void ledDisplaySequence();
@@ -190,7 +193,7 @@ void set_wp(int selection);
 
 void ledDeviceFail();
 
-
+void currentLedIncrement();
 
 #endif	/* DSPIC33CH512MP506_PINS_H */
 

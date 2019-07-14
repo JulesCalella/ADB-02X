@@ -221,24 +221,24 @@ void offsetAudioArray(int offset, int *audioArray, int numBytes)
 
 void defaultWaveformInit()
 {
-    controlArray[0] = 20;
-    controlArray[1] = 0;
-    controlArray[2] = 0;
-    controlArray[3] = 0;
-    controlArray[4] = 0;
-    controlArray[5] = 0;
-    controlArray[6] = 0;
-    controlArray[7] = 0;
-    controlArray[8] = 0;
-    controlArray[9] = 100;
-    controlArray[10] = 0;
-    controlArray[11] = 0;
-    controlArray[12] = 0;
-    controlArray[13] = 50;
-    controlArray[14] = 50;
-    controlArray[15] = 0;
-    controlArray[16] = 0;
-    controlArray[17] = 0;
+    controlArray[0] = 52;
+    controlArray[1] = 52;
+    controlArray[2] = 52;
+    controlArray[3] = 52;
+    controlArray[4] = 52;
+    controlArray[5] = 52;
+    controlArray[6] = 52;
+    controlArray[7] = 52;
+    controlArray[8] = 52;
+    controlArray[9] = 52;
+    controlArray[10] = 52;
+    controlArray[11] = 52;
+    controlArray[12] = 52;
+    controlArray[13] = 52;
+    controlArray[14] = 52;
+    controlArray[15] = 52;
+    controlArray[16] = 52;
+    controlArray[17] = 52;
 }
 
 void playNoteA(int *value, int currentElement)
