@@ -256,6 +256,12 @@
 #include "dsPIC33CH512MP506_Pins.h"
 #include "dsPIC33CH512MP506_Audio.h"
 
+void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
+{
+    currentLedIncrement();
+    
+    IFS0bits.T1IF = 0;
+}
 
 int main(void)
 {
@@ -300,17 +306,16 @@ int main(void)
     uart1On();    
     
     //ledDisplaySequence();
-    
     ledsOff();
     
     //defaultWaveformInit();
     //generateAllWaveforms();
     
     ledInit();
-    
+    timer1Init();
+            
     while(1)
     {
-        currentLedIncrement();
         updateInterface();
     }
     

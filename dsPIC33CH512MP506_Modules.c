@@ -22,6 +22,7 @@ int oscillatorInit()
     PLLFBDbits.PLLFBDIV = 144;  // M=144
     PLLDIVbits.POST1DIV = 6;    // N2=6
     PLLDIVbits.POST2DIV = 1;    // N3=1
+    PLLDIVbits.VCODIV = 0x2;
 
     if(OSCCONbits.COSC == 0x3) return 2;
     
@@ -717,4 +718,20 @@ int eepromRead(int devAddress, int regAddressH, int regAddressL, int *toReadData
     LATDbits.LATD7 = 1;
     
     return 0;
+}
+
+void timer1Init()
+{
+    // Configure for 10us timer
+    T1CONbits.TON = 0;
+    T1CON = 0x0110; // 0000 0001 0001 0000
+    
+    PR1 = 60;
+    TMR1 = 0;
+    
+    IFS0bits.T1IF = 0;
+    IEC0bits.T1IE = 1;
+    INTCON2bits.GIE = 1;
+    
+    T1CONbits.TON = 1;
 }
