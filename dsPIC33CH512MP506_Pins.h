@@ -144,6 +144,8 @@ void singleLedControl(int ledNumber);
  * 'void singleLedControl' */ 
 void ledControl();
 
+void tempoLedToggle();
+
 /* [LED DISPLAY SEQUENCE] displays an entertaining LED show. */
 void ledDisplaySequence();
 

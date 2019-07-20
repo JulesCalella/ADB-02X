@@ -256,11 +256,47 @@
 #include "dsPIC33CH512MP506_Pins.h"
 #include "dsPIC33CH512MP506_Audio.h"
 
+volatile int newOutput;
+volatile timingStruct timer;
+
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 {
     currentLedIncrement();
     
+    if(timer.interruptCount++ >= timer.location64Max){
+        timer.interruptCount = 0;
+        timer.location64++;
+        
+        if(timer.location64 >= 64){
+            timer.measure++;
+            timer.location64 = 0;
+        }
+        
+        if((timer.location64 % 16) == 0){
+            tempoLedToggle();
+        }
+    }
+    
     IFS0bits.T1IF = 0;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1TXInterrupt(void)
+{
+    newOutput = 1;
+    
+    IFS0bits.SPI1TXIF = 0;
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
+{
+    // IFS0bits.U1RXIF
+    // IEC0bits.U1RXIE
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
+{
+    // IFS0bits.U1TXIF
+    // IEC0bits.U1TXIE
 }
 
 int main(void)
@@ -308,14 +344,26 @@ int main(void)
     //ledDisplaySequence();
     ledsOff();
     
-    //defaultWaveformInit();
-    //generateAllWaveforms();
+    defaultWaveformInit();
+    generateAllWaveforms();
+    
+    writeSong();
+    
+    notesInit(&newOutput);
     
     ledInit();
     timer1Init();
-            
+    
+    timer.location64 = 0;
+    timer.location64Triplet = 0;
+    timer.measure = 0;
+    timer.location64Max = 3125;
+    
     while(1)
     {
+        updateTimer(timer);
+        readScoreArray();
+        updateOutputBuffer(newOutput);
         updateInterface();
     }
     

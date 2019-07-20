@@ -80,10 +80,17 @@ int oscillatorInit()
 int spi1Init()
 {
     SPI1CON1Lbits.SPIEN = 0;
-    SPI1CON1L = 0x2237; // 0010 0010 0011 0111
+    IEC0bits.SPI1TXIE = 0;
+    SPI1CON1L = 0x2637; // 0010 0110 0011 0111
     SPI1CON1H = 0xF891;    // 1111 1000 1001 0001
     SPI1CON2L = 0x000F; // 16-bit variable word length
     SPI1IMSKL = 0x0000;
+    
+    SPI1IMSKL = 0x0008; // 0000 0000 0000 1000
+    SPI1IMSKH = 0x0000;
+    
+    IFS0bits.SPI1TXIF = 0;
+    IEC0bits.SPI1TXIE = 1;
     
     return 0;
 }
@@ -145,7 +152,8 @@ int spi1Write(int toSendData)
     return 0;
 }
 
-// ========== I2C 1 ========== //
+// ========================================================================== //
+// I2C 1
 /* -----------------------------------------------------------------------------
  * I2C 1 INIT - 
  * ---------------------------------------------------------------------------*/

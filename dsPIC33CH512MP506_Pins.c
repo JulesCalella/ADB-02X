@@ -188,7 +188,7 @@ void ctrlRewind(int buttonHold)
     downButton.isActive = 0;
     
     if(buttonHold == 0){
-        
+        setScoreArray(0, 0);
     }
 }
 
@@ -1862,4 +1862,10 @@ void ledDeviceFail()
 {
     singleLedControl(f1); ledTimeDelay(1000);
     singleLedControl(f3); ledTimeDelay(1000);
+}
+
+void tempoLedToggle()
+{
+    if(ledControlArray[tempo] == 1) ledControlArray[tempo] = 0;
+    else ledControlArray[tempo] = 1;
 }

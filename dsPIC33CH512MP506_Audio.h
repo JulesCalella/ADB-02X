@@ -12,6 +12,12 @@
 #define SAMPLING_FREQUENCY 46875
 #define AMPLITUDE_MULTIPLIER 100
 
+#define NUM_NOTES 10
+#define NOTE_ARRAY_SIZE 10
+#define ARRAY_SIZE_X 70
+#define ARRAY_SIZE_Y 100
+#define ARRAY_OUTPUT_BUFFER 100
+
 #define C1_BUFF_SIZE 717
 #define CSh1_BUFF_SIZE 676
 #define D1_BUFF_SIZE 638
@@ -24,6 +30,45 @@
 #define A1_BUFF_SIZE 426
 #define ASh1_BUFF_SIZE 402
 #define B1_BUFF_SIZE 380
+
+#define C 0x00
+#define Csh 0x01
+#define D 0x02
+#define Dsh 0x03
+#define E 0x04
+#define F 0x05
+#define Fsh 0x06
+#define G 0x07
+#define Gsh 0x08
+#define A 0x09
+#define Ash 0x0A
+#define B 0x0B
+
+typedef struct{
+    int noteOn;
+    int measureEnd;
+    int locationEnd;
+    int triplet;    // True (1), False (0)
+    int pitch;
+    int dynamic;
+    int *noteArray;
+    int noteElement;
+    int noteElementMax;
+    int attackOn;
+    int attackElement;
+    int releaseOn;
+    int releaseElement;
+}noteStruct;
+
+typedef struct{
+    int measure;
+    int location64;
+    int location64Max;
+    int location64Triplet;
+    int location64TripletMax;
+    int tempo;
+    int interruptCount;
+}timingStruct;
 
 void generateAllWaveforms();
 
@@ -48,6 +93,20 @@ void playNoteA(int *value, int currentElement);
 void readControlArray(int *toReadArray);
 
 void writeControlArray(int *toWriteArray);
+
+void notesInit();
+
+void updateOutputBuffer();
+
+void readScoreArray();
+
+int updateNote();
+
+void writeSong();
+
+void setScoreArray(int x, int y);
+
+void updateTimer(timingStruct);
 
 #endif	/* DSPIC33CH512MP506_AUDIO_H */
 
