@@ -109,5 +109,7 @@ void setScoreArray(int x, int y);
 
 void updateTimer(timingStruct);
 
+int exponentOfTwo(int exp);
+
 #endif	/* DSPIC33CH512MP506_AUDIO_H */
 

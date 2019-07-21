@@ -350,7 +350,7 @@ int main(void)
     timer.location64 = 0;
     timer.location64Triplet = 0;
     timer.measure = 0;
-    timer.location64Max = 3125;
+    timer.location64Max = 2000; //3125;
     updateTimer(timer);
     updateOutputBuffer(&newOutput);
     
