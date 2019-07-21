@@ -9,27 +9,28 @@
 #define	DSPIC33CH512MP506_AUDIO_H
 
 #define PI 3.1415927
-#define SAMPLING_FREQUENCY 46875
-#define AMPLITUDE_MULTIPLIER 100
+#define SAMPLING_FREQUENCY 7813 //46875
+#define AMPLITUDE_MULTIPLIER 1
 
 #define NUM_NOTES 10
 #define NOTE_ARRAY_SIZE 10
 #define ARRAY_SIZE_X 70
 #define ARRAY_SIZE_Y 100
-#define ARRAY_OUTPUT_BUFFER 100
+#define ARRAY_OUTPUT_BUFFER 10
+#define AUDIO_OFFSET 10000
 
-#define C1_BUFF_SIZE 717
-#define CSh1_BUFF_SIZE 676
-#define D1_BUFF_SIZE 638
-#define DSh1_BUFF_SIZE 603
-#define E1_BUFF_SIZE 569
-#define F1_BUFF_SIZE 537
-#define FSh1_BUFF_SIZE 507
-#define G1_BUFF_SIZE 478
-#define GSh1_BUFF_SIZE 452
-#define A1_BUFF_SIZE 426
-#define ASh1_BUFF_SIZE 402
-#define B1_BUFF_SIZE 380
+#define C1_BUFF_SIZE 239 //717 //1433
+#define CSh1_BUFF_SIZE 225 //676 //1353
+#define D1_BUFF_SIZE 213 //638 //1277
+#define DSh1_BUFF_SIZE 201 //603 //1205
+#define E1_BUFF_SIZE 190 //569 //1138
+#define F1_BUFF_SIZE 179 //537 //1074
+#define FSh1_BUFF_SIZE 169 //507 //1014
+#define G1_BUFF_SIZE 159 //478 //957
+#define GSh1_BUFF_SIZE 151 //452 //903
+#define A1_BUFF_SIZE 142 //426 //852
+#define ASh1_BUFF_SIZE 134 //402 //804
+#define B1_BUFF_SIZE 127 //380 //759
 
 #define C 0x00
 #define Csh 0x01
@@ -100,7 +101,7 @@ void updateOutputBuffer();
 
 void readScoreArray();
 
-int updateNote();
+void updateNote(noteStruct *note, int isTriplet);
 
 void writeSong();
 

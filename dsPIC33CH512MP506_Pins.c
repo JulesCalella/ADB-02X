@@ -75,21 +75,21 @@ int pinInit()
     
     // Configure AK4386 Pins
     // Set as I2S
-    TRISDbits.TRISD4 = 0;   // DIF0
-    LATDbits.LATD4 = 1;
-    TRISCbits.TRISC11 = 0;  // DIF1
-    LATCbits.LATC11 = 1;
-    // Half Speed
+    TRISDbits.TRISD4 = 1;   // DIF0 -> UART
+    LATDbits.LATD4 = 0;
+    TRISCbits.TRISC11 = 1;  // DIF1 -> UART
+    LATCbits.LATC11 = 0;
+    // Normal Speed
     TRISDbits.TRISD1 = 0;   // DFS0
     LATDbits.LATD1 = 0;
     TRISDbits.TRISD2 = 0;   // DFS1
-    LATDbits.LATD2 = 1;
+    LATDbits.LATD2 = 0;
     // Deemphasis Filter (OFF)
     TRISDbits.TRISD3 = 0;
     LATDbits.LATD3 = 0;
     
     TRISDbits.TRISD0 = 0;   // PDN
-    LATDbits.LATD0 = 0;
+    LATDbits.LATD0 = 1;
     
     // Configure I2C Pins 
     TRISBbits.TRISB8 = 0;
@@ -116,11 +116,12 @@ int pinInit()
     NVMKEY = 0xAA;
     __builtin_write_RPCON(0x0800);
     
-    // Configure Reference Clock (12 MHz / 256 = 46,875 Hz)
+    // Configure Reference Clock (24 MHz / 512 = 46,875 Hz)
+    // Configure Reference Clock (4 MHz / 512 = 7812.5 Hz)
     REFOCONLbits.ROEN = 0;
     while((REFOCONL & 0x0100) != 0) continue;
     REFOCONL = 0x3800; // 0011 1000 0000 0000
-    REFOCONH = 4;   // 96MHz / (2*4) = 12MHz
+    REFOCONH = 12; // 96MHz / (2*12) = 4MHz    2;   // 96MHz / (2*2) = 24MHz
     while(REFOCONLbits.ROSWEN == 1) continue;
     REFOCONLbits.ROEN = 1;
     

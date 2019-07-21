@@ -82,8 +82,8 @@ int spi1Init()
     SPI1CON1Lbits.SPIEN = 0;
     IEC0bits.SPI1TXIE = 0;
     SPI1CON1L = 0x2637; // 0010 0110 0011 0111
-    SPI1CON1H = 0xF891;    // 1111 1000 1001 0001
-    SPI1CON2L = 0x000F; // 16-bit variable word length
+    SPI1CON1H = 0xF891; // 1111 1000 1001 0001
+    //SPI1CON2L = 0x002F; // 24-bit variable word length
     SPI1IMSKL = 0x0000;
     
     SPI1IMSKL = 0x0008; // 0000 0000 0000 1000
@@ -123,7 +123,7 @@ float  spi1SetBaudRate(int baudRate)
     
     // SPI1BRG = [Fpb / (2 * BaudRate)] - 1
 //    int temp = (( PERIPHERAL_CLOCK / (2000.0 * baudRate) ) - 1) + 0.5;
-    int temp = (( 12000000 / (2000.0 * baudRate) ) - 1) + 0.5;
+    int temp = (( REFCLKO_BAUD / (2000.0 * baudRate) ) - 1) + 0.5;
     SPI1BRGL = temp;
     
     float percentError = ((spi1ReadBaudRate() - baudRate) / (baudRate * 1.0));
@@ -147,7 +147,7 @@ float spi1ReadBaudRate()
 int spi1Write(int toSendData)
 {
     SPI1BUFL = toSendData;
-//    SPI1BUFH = toSendDataHigh;
+    SPI1BUFH = 0;
     
     return 0;
 }
@@ -571,7 +571,7 @@ float uart1ReadBaudRate()
  * ---------------------------------------------------------------------------*/
 void dacInit()
 {
-    spi1SetBaudRate(3000);
+    spi1SetBaudRate(500); // 3000
 }
 
 /* -----------------------------------------------------------------------------

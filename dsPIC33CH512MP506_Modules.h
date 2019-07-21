@@ -15,6 +15,7 @@
 
 #define SYSTEM_CLOCK 96000000
 #define PERIPHERAL_CLOCK 48000000
+#define REFCLKO_BAUD 4000000 // 24000000
 
 // Function Prototypes 
 int deviceInit();

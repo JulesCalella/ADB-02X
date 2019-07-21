@@ -332,14 +332,7 @@ int main(void)
     // AK4386 Setup
     dacInit();
     
-    // Timer Setup
-    
-    
-    // Activate Interrupts just before main loop
-    spi1On();
-    i2c1On();
-    i2c2On();
-    uart1On();    
+    // Timer Setup   
     
     //ledDisplaySequence();
     ledsOff();
@@ -349,30 +342,34 @@ int main(void)
     
     writeSong();
     
+    newOutput = 1;
     notesInit(&newOutput);
     
     ledInit();
-    timer1Init();
     
     timer.location64 = 0;
     timer.location64Triplet = 0;
     timer.measure = 0;
     timer.location64Max = 3125;
+    updateTimer(timer);
+    updateOutputBuffer(&newOutput);
+    
+    // Activate Interrupts just before main loop
+    timer1Init();
+    spi1On();
+    i2c1On();
+    i2c2On();
+    uart1On(); 
+    
+    //int send = 0;
     
     while(1)
     {
         updateTimer(timer);
         readScoreArray();
-        updateOutputBuffer(newOutput);
+        updateOutputBuffer(&newOutput);
         updateInterface();
     }
     
     return 0;
 }
-
-//if(SPI1STATLbits.SPITBF != 1){
-//    playNoteA(&output, noteElement);
-//    spi1Write(output);
-//    noteElement++;
-//    if(noteElement >= A1_BUFF_SIZE) noteElement = 0;
-//}
