@@ -121,7 +121,7 @@ int pinInit()
     REFOCONLbits.ROEN = 0;
     while((REFOCONL & 0x0100) != 0) continue;
     REFOCONL = 0x3800; // 0011 1000 0000 0000
-    REFOCONH = 12; // 96MHz / (2*12) = 4MHz    2;   // 96MHz / (2*2) = 24MHz
+    REFOCONH = 8; // 96MHz / (2*12) = 4MHz    2;   // 96MHz / (2*2) = 24MHz
     while(REFOCONLbits.ROSWEN == 1) continue;
     REFOCONLbits.ROEN = 1;
     

@@ -224,17 +224,17 @@ void clearAudioArray(int *audioArray, int numBytes)
  */
 void defaultWaveformInit()
 {
-    controlArray[0] = 50;
-    controlArray[1] = 20;
-    controlArray[2] = 35;
-    controlArray[3] = 15;
-    controlArray[4] = 8;
-    controlArray[5] = 10;
+    controlArray[0] = 10;
+    controlArray[1] = 0;
+    controlArray[2] = 0;
+    controlArray[3] = 0;
+    controlArray[4] = 0;
+    controlArray[5] = 0;
     controlArray[6] = 0;
     controlArray[7] = 0;
     controlArray[8] = 0;
     controlArray[9] = 100;
-    controlArray[10] = 25;
+    controlArray[10] = 50;
     controlArray[11] = 0;
     controlArray[12] = 0;
     controlArray[13] = 50;
@@ -371,6 +371,7 @@ void readScoreArray()
                     currentArrayY++;
                     if(currentArrayY >= ARRAY_SIZE_Y){ 
                         currentArrayY = 0;
+                        // End Song
                     }
                 }
             }
@@ -461,6 +462,7 @@ void updateNote(noteStruct *note, int isTriplet)
         default:
             note->noteArray = emptyArray;
             note->noteElementMax = 1;
+            // Pauses Song and resets to beginning
     }
 }
 
@@ -481,7 +483,7 @@ void updateTimer(timingStruct timer)
 
 void writeSong(){
     scoreArray1[0][0] = C;  // Note
-    scoreArray1[1][0] = 2;  // Pitch
+    scoreArray1[1][0] = 3;  // Pitch
     scoreArray1[2][0] = 0;  // Measure Start High
     scoreArray1[3][0] = 1;  // Measure Start Low
     scoreArray1[4][0] = 0;  // Location Start
@@ -490,7 +492,7 @@ void writeSong(){
     scoreArray1[7][0] = 16; // Location End
     
     scoreArray1[10][0] = C;
-    scoreArray1[11][0] = 2;
+    scoreArray1[11][0] = 3;
     scoreArray1[12][0] = 0;
     scoreArray1[13][0] = 1;
     scoreArray1[14][0] = 16;
@@ -499,7 +501,7 @@ void writeSong(){
     scoreArray1[17][0] = 32;
     
     scoreArray1[20][0] = G;
-    scoreArray1[21][0] = 2;
+    scoreArray1[21][0] = 3;
     scoreArray1[22][0] = 0;
     scoreArray1[23][0] = 1;
     scoreArray1[24][0] = 32;
@@ -508,7 +510,7 @@ void writeSong(){
     scoreArray1[27][0] = 48;
     
     scoreArray1[30][0] = G;
-    scoreArray1[31][0] = 2;
+    scoreArray1[31][0] = 3;
     scoreArray1[32][0] = 0;
     scoreArray1[33][0] = 1;
     scoreArray1[34][0] = 48;
@@ -517,7 +519,7 @@ void writeSong(){
     scoreArray1[37][0] = 0;
     
     scoreArray1[40][0] = A;
-    scoreArray1[41][0] = 2;
+    scoreArray1[41][0] = 3;
     scoreArray1[42][0] = 0;
     scoreArray1[43][0] = 2;
     scoreArray1[44][0] = 0;
@@ -526,7 +528,7 @@ void writeSong(){
     scoreArray1[47][0] = 16;
     
     scoreArray1[50][0] = A;
-    scoreArray1[51][0] = 2;
+    scoreArray1[51][0] = 3;
     scoreArray1[52][0] = 0;
     scoreArray1[53][0] = 2;
     scoreArray1[54][0] = 16;
@@ -535,7 +537,7 @@ void writeSong(){
     scoreArray1[57][0] = 32;
     
     scoreArray1[60][0] = G;
-    scoreArray1[61][0] = 2;
+    scoreArray1[61][0] = 3;
     scoreArray1[62][0] = 0;
     scoreArray1[63][0] = 2;
     scoreArray1[64][0] = 32;
@@ -544,7 +546,7 @@ void writeSong(){
     scoreArray1[67][0] = 0;
     
     scoreArray1[0][1] = F;
-    scoreArray1[1][1] = 2;
+    scoreArray1[1][1] = 3;
     scoreArray1[2][1] = 0;
     scoreArray1[3][1] = 3;
     scoreArray1[4][1] = 0;
@@ -553,7 +555,7 @@ void writeSong(){
     scoreArray1[7][1] = 16;
     
     scoreArray1[10][1] = F;
-    scoreArray1[11][1] = 2;
+    scoreArray1[11][1] = 3;
     scoreArray1[12][1] = 0;
     scoreArray1[13][1] = 3;
     scoreArray1[14][1] = 16;
@@ -562,7 +564,7 @@ void writeSong(){
     scoreArray1[17][1] = 32;
     
     scoreArray1[20][1] = E;
-    scoreArray1[21][1] = 2;
+    scoreArray1[21][1] = 3;
     scoreArray1[22][1] = 0;
     scoreArray1[23][1] = 3;
     scoreArray1[24][1] = 32;
@@ -571,7 +573,7 @@ void writeSong(){
     scoreArray1[27][1] = 48;
     
     scoreArray1[30][1] = E;
-    scoreArray1[31][1] = 2;
+    scoreArray1[31][1] = 3;
     scoreArray1[32][1] = 0;
     scoreArray1[33][1] = 3;
     scoreArray1[34][1] = 48;
@@ -580,7 +582,7 @@ void writeSong(){
     scoreArray1[37][1] = 0;
     
     scoreArray1[40][1] = D;
-    scoreArray1[41][1] = 2;
+    scoreArray1[41][1] = 3;
     scoreArray1[42][1] = 0;
     scoreArray1[43][1] = 4;
     scoreArray1[44][1] = 0;
@@ -589,7 +591,7 @@ void writeSong(){
     scoreArray1[47][1] = 16;
     
     scoreArray1[50][1] = D;
-    scoreArray1[51][1] = 2;
+    scoreArray1[51][1] = 3;
     scoreArray1[52][1] = 0;
     scoreArray1[53][1] = 4;
     scoreArray1[54][1] = 16;
@@ -598,7 +600,7 @@ void writeSong(){
     scoreArray1[57][1] = 32;
     
     scoreArray1[60][1] = C;
-    scoreArray1[61][1] = 2;
+    scoreArray1[61][1] = 3;
     scoreArray1[62][1] = 0;
     scoreArray1[63][1] = 4;
     scoreArray1[64][1] = 32;
@@ -607,7 +609,7 @@ void writeSong(){
     scoreArray1[67][1] = 0;
     
     scoreArray1[0][2] = G;
-    scoreArray1[1][2] = 2;
+    scoreArray1[1][2] = 3;
     scoreArray1[2][2] = 0;
     scoreArray1[3][2] = 5;
     scoreArray1[4][2] = 0;
@@ -616,7 +618,7 @@ void writeSong(){
     scoreArray1[7][2] = 16;
     
     scoreArray1[10][2] = G;
-    scoreArray1[11][2] = 2;
+    scoreArray1[11][2] = 3;
     scoreArray1[12][2] = 0;
     scoreArray1[13][2] = 5;
     scoreArray1[14][2] = 16;
@@ -625,7 +627,7 @@ void writeSong(){
     scoreArray1[17][2] = 32;
     
     scoreArray1[20][2] = F;
-    scoreArray1[21][2] = 2;
+    scoreArray1[21][2] = 3;
     scoreArray1[22][2] = 0;
     scoreArray1[23][2] = 5;
     scoreArray1[24][2] = 32;
@@ -634,7 +636,7 @@ void writeSong(){
     scoreArray1[27][2] = 48;
     
     scoreArray1[30][2] = F;
-    scoreArray1[31][2] = 2;
+    scoreArray1[31][2] = 3;
     scoreArray1[32][2] = 0;
     scoreArray1[33][2] = 5;
     scoreArray1[34][2] = 48;
@@ -643,7 +645,7 @@ void writeSong(){
     scoreArray1[37][2] = 0;
     
     scoreArray1[40][2] = E;
-    scoreArray1[41][2] = 2;
+    scoreArray1[41][2] = 3;
     scoreArray1[42][2] = 0;
     scoreArray1[43][2] = 6;
     scoreArray1[44][2] = 0;
@@ -652,7 +654,7 @@ void writeSong(){
     scoreArray1[47][2] = 16;
     
     scoreArray1[50][2] = E;
-    scoreArray1[51][2] = 2;
+    scoreArray1[51][2] = 3;
     scoreArray1[52][2] = 0;
     scoreArray1[53][2] = 6;
     scoreArray1[54][2] = 16;
@@ -661,7 +663,7 @@ void writeSong(){
     scoreArray1[57][2] = 32;
     
     scoreArray1[60][2] = D;
-    scoreArray1[61][2] = 2;
+    scoreArray1[61][2] = 3;
     scoreArray1[62][2] = 0;
     scoreArray1[63][2] = 6;
     scoreArray1[64][2] = 32;
@@ -670,7 +672,7 @@ void writeSong(){
     scoreArray1[67][2] = 0;
     
     scoreArray1[0][3] = G;
-    scoreArray1[1][3] = 2;
+    scoreArray1[1][3] = 3;
     scoreArray1[2][3] = 0;
     scoreArray1[3][3] = 7;
     scoreArray1[4][3] = 0;
@@ -679,7 +681,7 @@ void writeSong(){
     scoreArray1[7][3] = 16;
     
     scoreArray1[10][3] = G;
-    scoreArray1[11][3] = 2;
+    scoreArray1[11][3] = 3;
     scoreArray1[12][3] = 0;
     scoreArray1[13][3] = 7;
     scoreArray1[14][3] = 16;
@@ -688,7 +690,7 @@ void writeSong(){
     scoreArray1[17][3] = 32;
     
     scoreArray1[20][3] = F;
-    scoreArray1[21][3] = 2;
+    scoreArray1[21][3] = 3;
     scoreArray1[22][3] = 0;
     scoreArray1[23][3] = 7;
     scoreArray1[24][3] = 32;
@@ -697,7 +699,7 @@ void writeSong(){
     scoreArray1[27][3] = 48;
     
     scoreArray1[30][3] = F;
-    scoreArray1[31][3] = 2;
+    scoreArray1[31][3] = 3;
     scoreArray1[32][3] = 0;
     scoreArray1[33][3] = 7;
     scoreArray1[34][3] = 48;
@@ -706,7 +708,7 @@ void writeSong(){
     scoreArray1[37][3] = 0;
     
     scoreArray1[40][3] = E;
-    scoreArray1[41][3] = 2;
+    scoreArray1[41][3] = 3;
     scoreArray1[42][3] = 0;
     scoreArray1[43][3] = 8;
     scoreArray1[44][3] = 0;
@@ -715,7 +717,7 @@ void writeSong(){
     scoreArray1[47][3] = 16;
     
     scoreArray1[50][3] = E;
-    scoreArray1[51][3] = 2;
+    scoreArray1[51][3] = 3;
     scoreArray1[52][3] = 0;
     scoreArray1[53][3] = 8;
     scoreArray1[54][3] = 16;
@@ -724,7 +726,7 @@ void writeSong(){
     scoreArray1[57][3] = 32;
     
     scoreArray1[60][3] = D;
-    scoreArray1[61][3] = 2;
+    scoreArray1[61][3] = 3;
     scoreArray1[62][3] = 0;
     scoreArray1[63][3] = 8;
     scoreArray1[64][3] = 32;
@@ -733,7 +735,7 @@ void writeSong(){
     scoreArray1[67][3] = 0;
     
     scoreArray1[0][4] = C;  // Note
-    scoreArray1[1][4] = 2;  // Pitch
+    scoreArray1[1][4] = 3;  // Pitch
     scoreArray1[2][4] = 0;  // Measure Start High
     scoreArray1[3][4] = 9;  // Measure Start Low
     scoreArray1[4][4] = 0;  // Location Start
@@ -742,7 +744,7 @@ void writeSong(){
     scoreArray1[7][4] = 16; // Location End
     
     scoreArray1[10][4] = C;
-    scoreArray1[11][4] = 2;
+    scoreArray1[11][4] = 3;
     scoreArray1[12][4] = 0;
     scoreArray1[13][4] = 9;
     scoreArray1[14][4] = 16;
@@ -751,7 +753,7 @@ void writeSong(){
     scoreArray1[17][4] = 32;
     
     scoreArray1[20][4] = G;
-    scoreArray1[21][4] = 2;
+    scoreArray1[21][4] = 3;
     scoreArray1[22][4] = 0;
     scoreArray1[23][4] = 1;
     scoreArray1[24][4] = 32;
@@ -760,7 +762,7 @@ void writeSong(){
     scoreArray1[27][4] = 48;
     
     scoreArray1[30][4] = G;
-    scoreArray1[31][4] = 2;
+    scoreArray1[31][4] = 3;
     scoreArray1[32][4] = 0;
     scoreArray1[33][4] = 9;
     scoreArray1[34][4] = 48;
@@ -769,7 +771,7 @@ void writeSong(){
     scoreArray1[37][4] = 0;
     
     scoreArray1[40][4] = A;
-    scoreArray1[41][4] = 2;
+    scoreArray1[41][4] = 3;
     scoreArray1[42][4] = 0;
     scoreArray1[43][4] = 10;
     scoreArray1[44][4] = 0;
@@ -778,7 +780,7 @@ void writeSong(){
     scoreArray1[47][4] = 16;
     
     scoreArray1[50][4] = A;
-    scoreArray1[51][4] = 2;
+    scoreArray1[51][4] = 3;
     scoreArray1[52][4] = 0;
     scoreArray1[53][4] = 10;
     scoreArray1[54][4] = 16;
@@ -787,7 +789,7 @@ void writeSong(){
     scoreArray1[57][4] = 32;
     
     scoreArray1[60][4] = G;
-    scoreArray1[61][4] = 2;
+    scoreArray1[61][4] = 3;
     scoreArray1[62][4] = 0;
     scoreArray1[63][4] = 10;
     scoreArray1[64][4] = 32;
@@ -796,7 +798,7 @@ void writeSong(){
     scoreArray1[67][4] = 0;
     
     scoreArray1[0][5] = F;
-    scoreArray1[1][5] = 2;
+    scoreArray1[1][5] = 3;
     scoreArray1[2][5] = 0;
     scoreArray1[3][5] = 11;
     scoreArray1[4][5] = 0;
@@ -805,7 +807,7 @@ void writeSong(){
     scoreArray1[7][5] = 16;
     
     scoreArray1[10][5] = F;
-    scoreArray1[11][5] = 2;
+    scoreArray1[11][5] = 3;
     scoreArray1[12][5] = 0;
     scoreArray1[13][5] = 11;
     scoreArray1[14][5] = 16;
@@ -814,7 +816,7 @@ void writeSong(){
     scoreArray1[17][5] = 32;
     
     scoreArray1[20][5] = E;
-    scoreArray1[21][5] = 2;
+    scoreArray1[21][5] = 3;
     scoreArray1[22][5] = 0;
     scoreArray1[23][5] = 11;
     scoreArray1[24][5] = 32;
@@ -823,7 +825,7 @@ void writeSong(){
     scoreArray1[27][5] = 48;
     
     scoreArray1[30][5] = E;
-    scoreArray1[31][5] = 2;
+    scoreArray1[31][5] = 3;
     scoreArray1[32][5] = 0;
     scoreArray1[33][5] = 11;
     scoreArray1[34][5] = 48;
@@ -832,7 +834,7 @@ void writeSong(){
     scoreArray1[37][5] = 0;
     
     scoreArray1[40][5] = D;
-    scoreArray1[41][5] = 2;
+    scoreArray1[41][5] = 3;
     scoreArray1[42][5] = 0;
     scoreArray1[43][5] = 12;
     scoreArray1[44][5] = 0;
@@ -841,7 +843,7 @@ void writeSong(){
     scoreArray1[47][5] = 16;
     
     scoreArray1[50][5] = G;
-    scoreArray1[51][5] = 2;
+    scoreArray1[51][5] = 3;
     scoreArray1[52][5] = 0;
     scoreArray1[53][5] = 12;
     scoreArray1[54][5] = 16;
@@ -849,8 +851,8 @@ void writeSong(){
     scoreArray1[56][5] = 12;
     scoreArray1[57][5] = 32;
     
-    scoreArray1[60][5] = G;
-    scoreArray1[61][5] = 1;
+    scoreArray1[60][5] = B;
+    scoreArray1[61][5] = 3;
     scoreArray1[62][5] = 0;
     scoreArray1[63][5] = 12;
     scoreArray1[64][5] = 16;
@@ -859,7 +861,7 @@ void writeSong(){
     scoreArray1[67][5] = 32;
     
     scoreArray1[0][6] = C;
-    scoreArray1[1][6] = 3;
+    scoreArray1[1][6] = 4;
     scoreArray1[2][6] = 0;
     scoreArray1[3][6] = 12;
     scoreArray1[4][6] = 32;
@@ -868,7 +870,7 @@ void writeSong(){
     scoreArray1[7][6] = 0;
     
     scoreArray1[10][6] = C;
-    scoreArray1[11][6] = 2;
+    scoreArray1[11][6] = 3;
     scoreArray1[12][6] = 0;
     scoreArray1[13][6] = 12;
     scoreArray1[14][6] = 32;
@@ -877,7 +879,7 @@ void writeSong(){
     scoreArray1[17][6] = 0;
     
     scoreArray1[20][6] = E;
-    scoreArray1[21][6] = 2;
+    scoreArray1[21][6] = 3;
     scoreArray1[22][6] = 0;
     scoreArray1[23][6] = 12;
     scoreArray1[24][6] = 32;
@@ -886,7 +888,7 @@ void writeSong(){
     scoreArray1[27][6] = 0;
     
     scoreArray1[30][6] = G;
-    scoreArray1[31][6] = 2;
+    scoreArray1[31][6] = 3;
     scoreArray1[32][6] = 0;
     scoreArray1[33][6] = 12;
     scoreArray1[34][6] = 32;
