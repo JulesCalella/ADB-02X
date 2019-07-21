@@ -13,6 +13,8 @@ buttonStruct rightButton;
 buttonStruct upButton;
 buttonStruct downButton;
 
+interfaceStruct *controlInterface;
+
 // ** Global Variables ** //
 enum ledNames{sine = 0, sawtooth, instrument, one, four, seven, f1,
               square, attack, memory, two, five, eight, f2,
@@ -154,6 +156,16 @@ int ak4386Init()
     return 0;
 }
 
+void linkInterface(interfaceStruct *interface)
+{
+    controlInterface = interface;
+    controlInterface->fastForward = 0;
+    controlInterface->play = 0;
+    controlInterface->rewind = 0;
+    controlInterface->load = 0;
+    controlInterface->saving = 0;
+}
+
 void readButtons()
 {
     int status = BTN1;
@@ -204,6 +216,9 @@ void ctrlPlay(int buttonHold)
     rightButton.isActive = 0;
     upButton.isActive = 0;
     downButton.isActive = 0;
+    
+    if(controlInterface->play == 1) controlInterface->play = 0;
+    else controlInterface->play = 1;
 }
 
 void ctrlFastForward(int buttonHold)
@@ -263,6 +278,12 @@ void ctrlSave(int buttonHold)
         // Save song to EEPROM
     } else if(interfaceSelection == instrument){
         // Save instrument to EEPROM
+    } else {
+        int resume = 1;
+        if(controlInterface->play == 0) resume = 0;
+        controlInterface->play = 0;
+        generateAllWaveforms();
+        if(resume == 1) controlInterface->play = 1;
     }
     
     writeControlArray(audioControlArray);

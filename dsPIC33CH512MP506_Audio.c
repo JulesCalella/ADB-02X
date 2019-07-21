@@ -46,7 +46,7 @@ int currentArrayY;
 int currentArray;
 volatile int outputBuffer[ARRAY_OUTPUT_BUFFER];
 
-volatile timingStruct timing;
+timingStruct *timerAudio;
 
 noteStruct notes[NUM_NOTES];
 
@@ -304,11 +304,11 @@ void updateOutputBuffer(int *newOutput)
             if(notes[noteNum].noteOn == 1){
                 noteEnded = 0;
                 // Check if note is over
-                if(notes[noteNum].measureEnd <= timing.measure){
-                    if((notes[noteNum].locationEnd <= timing.location64) && (notes[noteNum].triplet == 0)){
+                if(notes[noteNum].measureEnd <= timerAudio->measure){
+                    if((notes[noteNum].locationEnd <= timerAudio->location64) && (notes[noteNum].triplet == 0)){
                         notes[noteNum].noteOn = 0;
                         noteEnded = 1;
-                    } else if((notes[noteNum].locationEnd <= timing.location64Triplet)&&(notes[noteNum].triplet == 1)){
+                    } else if((notes[noteNum].locationEnd <= timerAudio->location64Triplet)&&(notes[noteNum].triplet == 1)){
                         notes[noteNum].noteOn = 0;
                         noteEnded = 1;
                     }
@@ -344,8 +344,8 @@ void readScoreArray()
         scoreMeasure = (scoreArray1[currentArrayX+2][currentArrayY] << 8) | scoreArray1[currentArrayX+3][currentArrayY];
         location = scoreArray1[currentArrayX+4][currentArrayY];
 
-        if(scoreMeasure <= timing.measure){
-            if((location) <= timing.location64){
+        if(scoreMeasure <= timerAudio->measure){
+            if((location) <= timerAudio->location64){
                 for(check=0; check<NUM_NOTES; check++){
                     if(notes[check].noteOn == 0){
                         updateNote(&notes[check], 0);
@@ -470,15 +470,19 @@ void setScoreArray(int x, int y)
 {
     currentArrayX = x;
     currentArrayY = y;
-    timing.measure = 0;
-    timing.location64 = 0;
-    timing.location64Triplet = 0;
+    timerAudio->measure = 0;
+    timerAudio->location64 = 0;
+    timerAudio->location64Triplet = 0;
 }
 
-void updateTimer(timingStruct timer)
+void linkTimer(timingStruct *timer)
 {
-    timing.location64 = timer.location64;
-    timing.measure = timer.measure;
+    timerAudio = timer;
+    timerAudio->interruptCount = 0;
+    timerAudio->location64 = 0;
+    timerAudio->location64Triplet = 0;
+    timerAudio->measure = 0;
+    timerAudio->tempo = 120;
 }
 
 void writeSong(){

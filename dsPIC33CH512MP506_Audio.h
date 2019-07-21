@@ -107,7 +107,8 @@ void writeSong();
 
 void setScoreArray(int x, int y);
 
-void updateTimer(timingStruct);
+//void updateTimer(timingStruct);
+void linkTimer(timingStruct *timer);
 
 int exponentOfTwo(int exp);
 

@@ -85,6 +85,13 @@ typedef struct {
     int isActive;
 } buttonStruct;
 
+typedef struct {
+    int play;
+    int rewind;
+    int fastForward;
+    int load;
+    int saving;
+}interfaceStruct;
 // =================== //
 // FUNCTION PROTOTYPES // 
 // =================== //
@@ -101,7 +108,7 @@ int ak4386Init();
  * 
  * 0 0 0 0 - 0 0 0 B9 - B8 B7 B6 B5 - B4 B3 B2 B1 */
 void readButtons();
-
+void linkInterface(interfaceStruct *interface);
 void ctrlRewind(int buttonHold);
 void ctrlPlay(int buttonHold);
 void ctrlFastForward(int buttonHold);

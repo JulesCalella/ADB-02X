@@ -257,25 +257,15 @@
 #include "dsPIC33CH512MP506_Audio.h"
 
 volatile int newOutput;
-volatile timingStruct timer;
+volatile int timerCalled;
+timingStruct timer;
+interfaceStruct interface;
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 {
     currentLedIncrement();
     
-    if(timer.interruptCount++ >= timer.location64Max){
-        timer.interruptCount = 0;
-        timer.location64++;
-        
-        if(timer.location64 >= 64){
-            timer.measure++;
-            timer.location64 = 0;
-        }
-        
-        if((timer.location64 % 16) == 0){
-            tempoLedToggle();
-        }
-    }
+    if(interface.play != 0) timerCalled++;
     
     IFS0bits.T1IF = 0;
 }
@@ -297,6 +287,26 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
 {
     // IFS0bits.U1TXIF
     // IEC0bits.U1TXIE
+}
+
+void updateTimer()
+{
+    timer.interruptCount += timerCalled;
+    timerCalled = 0;
+    
+    if(timer.interruptCount >= timer.location64Max){
+        timer.interruptCount = 0;
+        timer.location64++;
+
+        if(timer.location64 >= 64){
+            timer.measure++;
+            timer.location64 = 0;
+        }
+
+        if((timer.location64 % 16) == 0){
+            tempoLedToggle();
+        }
+    }
 }
 
 int main(void)
@@ -343,6 +353,7 @@ int main(void)
     writeSong();
     
     newOutput = 1;
+    timerCalled = 0;
     notesInit(&newOutput);
     
     ledInit();
@@ -351,7 +362,8 @@ int main(void)
     timer.location64Triplet = 0;
     timer.measure = 0;
     timer.location64Max = 2000; //3125;
-    updateTimer(timer);
+    linkTimer(&timer);
+    linkInterface(&interface);
     updateOutputBuffer(&newOutput);
     
     // Activate Interrupts just before main loop
@@ -365,11 +377,12 @@ int main(void)
     
     while(1)
     {
-        updateTimer(timer);
+        updateTimer();
         readScoreArray();
-        updateOutputBuffer(&newOutput);
+        if(interface.play != 0) updateOutputBuffer(&newOutput);
         updateInterface();
     }
     
     return 0;
 }
+
