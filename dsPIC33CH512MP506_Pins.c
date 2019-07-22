@@ -31,7 +31,7 @@ int numberDisplay;
 int interfaceSelection = 0;
 int selectionAmplitude;
 int selectionChanged = 1;
-int audioControlArray[18];
+int audioControlArray[19];
 
 int tempCounter = 0;
 
@@ -427,9 +427,11 @@ void updateButton(buttonStruct *button, void (*functionPtr)(int), int status)
  * 15 - Function 1
  * 16 - Function 2
  * 17 - Function 3
+ * 18 - Tempo
  * */
 void updateInterface()
 {
+    
     readButtons();
     
     if(selectionChanged != 0){
@@ -475,64 +477,70 @@ void updateInterface()
 
                 updateLeds(memory);
                 break;
-
-            case 8: // Overtone 1
+            case 8: // Tempo
+                updateAmplitude(18);
+                writeControlArray(audioControlArray);
+                updateLeds(0xFF);
+                updateTempo(audioControlArray[18]);
+                break;
+                
+            case 9: // Overtone 1
                 updateAmplitude(0);
                 updateLeds(one);
                 break;
 
-            case 9: // Overtone 2
+            case 10: // Overtone 2
                 updateAmplitude(1);
                 updateLeds(two);
                 break;
 
-            case 10: // Overtone 3
+            case 11: // Overtone 3
                 updateAmplitude(2);
                 updateLeds(three);
                 break;
 
-            case 11: // Overtone 4
+            case 12: // Overtone 4
                 updateAmplitude(3);
                 updateLeds(four);
                 break;
 
-            case 12: // Overtone 5
+            case 13: // Overtone 5
                 updateAmplitude(4);
                 updateLeds(five);
                 break;
 
-            case 13: // Overtone 6
+            case 14: // Overtone 6
                 updateAmplitude(5);
                 updateLeds(six);
                 break;
 
-            case 14: // Overtone 7
+            case 15: // Overtone 7
                 updateAmplitude(6);
                 updateLeds(seven);
                 break;
 
-            case 15: // Overtone 8
+            case 16: // Overtone 8
                 updateAmplitude(7);
                 updateLeds(eight);
                 break;
 
-            case 16: // Overtone 9
+            case 17: // Overtone 9
                 updateAmplitude(8);
                 updateLeds(nine);
                 break;
 
-            case 17: // Function 1
-                updateAmplitude(9);
+            case 18: // Function 1
+                updateAmplitude(15);
                 updateLeds(f1);
                 break;
 
-            case 18: // Function 2
-                updateAmplitude(10);
+            case 19: // Function 2
+                updateAmplitude(16);
                 updateLeds(f2);
                 break;
 
-            case 19: // Function 3
-                updateAmplitude(11);
+            case 20: // Function 3
+                updateAmplitude(17);
                 updateLeds(f3);
                 break;
         }
@@ -569,15 +577,26 @@ void updateAmplitude(int arrayIndex)
     } else {
         audioControlArray[arrayIndex] += selectionAmplitude;
     }
-        
-    if(audioControlArray[arrayIndex] > 100) audioControlArray[arrayIndex] = 100;
-    if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
+    
+    
+    if(arrayIndex != 18){
+        if(audioControlArray[arrayIndex] > 100) audioControlArray[arrayIndex] = 100;
+        if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
+    } else {
+        if(audioControlArray[arrayIndex] > 220) audioControlArray[arrayIndex] = 220;
+        if(audioControlArray[arrayIndex] < 40) audioControlArray[arrayIndex] = 40;
+    }
     numberDisplay = audioControlArray[arrayIndex];
     selectionAmplitude = 0;
 }
 
 void updateLeds(int ledChoice)
 {
+    if(ledChoice == 0xFF){
+        ledControlArray[currentLedOn] = 0;
+        return;
+    }
+    
     ledControlArray[currentLedOn] = 0;
     ledControlArray[ledChoice] = 1;
     currentLedOn = ledChoice;
@@ -796,6 +815,7 @@ void updateNumberDisplay()
             ledControlArray[d23g] = 1;
             break;
             
+        // Special case when value less than 10 to hide '0'
         case 10:
             ledControlArray[d23a] = 0;
             ledControlArray[d23b] = 0;

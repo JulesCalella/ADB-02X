@@ -38,7 +38,7 @@ int a1Waveform[A1_BUFF_SIZE];
 int aSharp1Waveform[ASh1_BUFF_SIZE];
 int b1Waveform[B1_BUFF_SIZE];
 int emptyArray[1];
-int controlArray[18];
+int controlArray[19];
 
 int scoreArray1[ARRAY_SIZE_X][ARRAY_SIZE_Y];
 int currentArrayX;
@@ -242,6 +242,7 @@ void defaultWaveformInit()
     controlArray[15] = 0;
     controlArray[16] = 0;
     controlArray[17] = 0;
+    controlArray[18] = 120;
 }
 
 /*
@@ -250,7 +251,7 @@ void defaultWaveformInit()
 void readControlArray(int *toReadArray)
 {
     int i;
-    for(i=0; i<18; i++){
+    for(i=0; i<19; i++){
         toReadArray[i] = controlArray[i];
     }
 }
@@ -261,7 +262,7 @@ void readControlArray(int *toReadArray)
 void writeControlArray(int *toWriteArray)
 {
     int i;
-    for(i=0; i<18; i++){
+    for(i=0; i<19; i++){
         controlArray[i] = toWriteArray[i];
     }
 }
@@ -482,7 +483,13 @@ void linkTimer(timingStruct *timer)
     timerAudio->location64 = 0;
     timerAudio->location64Triplet = 0;
     timerAudio->measure = 0;
-    timerAudio->tempo = 120;
+    updateTempo(120);
+}
+
+void updateTempo(int newTempo)
+{
+    timerAudio->tempo = newTempo;
+    timerAudio->location64Max = (int)((1000.0/newTempo) * 375);
 }
 
 void writeSong(){

@@ -356,14 +356,9 @@ int main(void)
     timerCalled = 0;
     notesInit(&newOutput);
     
-    ledInit();
-    
-    timer.location64 = 0;
-    timer.location64Triplet = 0;
-    timer.measure = 0;
-    timer.location64Max = 2000; //3125;
     linkTimer(&timer);
     linkInterface(&interface);
+    ledInit();
     updateOutputBuffer(&newOutput);
     
     // Activate Interrupts just before main loop
