@@ -345,7 +345,7 @@ void ctrlUp(int buttonHold)
     if(buttonHold == 0){ 
         selectionAmplitude = 1;
     } else {
-        selectionAmplitude = 5;
+        selectionAmplitude = 10;
     }
     
     selectionChanged = 1;
@@ -366,7 +366,7 @@ void ctrlDown(int buttonHold)
     if(buttonHold == 0){
         selectionAmplitude = -1;
     } else {
-        selectionAmplitude = -5;
+        selectionAmplitude = -10;
     }
     
     selectionChanged = 1;
@@ -557,7 +557,19 @@ void ledInit()
 
 void updateAmplitude(int arrayIndex)
 {
-    audioControlArray[arrayIndex] += selectionAmplitude;
+    int currentOnes;
+    
+    if(selectionAmplitude == 10) { 
+        currentOnes = audioControlArray[arrayIndex] % 10;
+        audioControlArray[arrayIndex] += (10-currentOnes);
+    } else if(selectionAmplitude == -10) {
+        currentOnes = audioControlArray[arrayIndex] % 10;
+        if(currentOnes != 0) audioControlArray[arrayIndex] -= currentOnes;
+        else audioControlArray[arrayIndex] -= 10;
+    } else {
+        audioControlArray[arrayIndex] += selectionAmplitude;
+    }
+        
     if(audioControlArray[arrayIndex] > 100) audioControlArray[arrayIndex] = 100;
     if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
     numberDisplay = audioControlArray[arrayIndex];
@@ -578,6 +590,8 @@ void updateNumberDisplay()
     ones = numberDisplay % 10;
     tens = (numberDisplay / 10) % 10;
     hundreds = (numberDisplay / 100) % 10;
+    
+    if(numberDisplay < 10) tens = 10;
     
     switch(ones){
         case 0:
@@ -781,16 +795,26 @@ void updateNumberDisplay()
             ledControlArray[d23f] = 1;
             ledControlArray[d23g] = 1;
             break;
+            
+        case 10:
+            ledControlArray[d23a] = 0;
+            ledControlArray[d23b] = 0;
+            ledControlArray[d23c] = 0;
+            ledControlArray[d23d] = 0;
+            ledControlArray[d23e] = 0;
+            ledControlArray[d23f] = 0;
+            ledControlArray[d23g] = 0;
+            break;
     }
     
     switch(hundreds){
         case 0:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 1;
-            ledControlArray[d22f] = 1;
+            ledControlArray[d22a] = 0; //1;
+            ledControlArray[d22b] = 0; //1;
+            ledControlArray[d22c] = 0; //1;
+            ledControlArray[d22d] = 0; //1;
+            ledControlArray[d22e] = 0; //1;
+            ledControlArray[d22f] = 0; //1;
             ledControlArray[d22g] = 0;
             break;
             
