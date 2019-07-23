@@ -50,11 +50,25 @@ timingStruct *timerAudio;
 
 noteStruct notes[NUM_NOTES];
 
+void loading(int isLoading)
+{
+    if(isLoading){
+        timerAudio->loading = 1;
+    } else {
+        timerAudio->loading = 0;
+    }
+
+    timerAudio->loadingCount = 0;
+    timerAudio->loadingDisplay = 0;
+    updateNumberDisplay();
+}
+
 /*
  * 
  */
 void generateAllWaveforms()
 {
+    loading(1);
     generateWaveform(c1Waveform, controlArray, C1_BUFF_SIZE);
     generateWaveform(cSharp1Waveform, controlArray, CSh1_BUFF_SIZE);
     generateWaveform(d1Waveform, controlArray, D1_BUFF_SIZE);
@@ -68,6 +82,7 @@ void generateAllWaveforms()
     generateWaveform(aSharp1Waveform, controlArray, ASh1_BUFF_SIZE);
     generateWaveform(b1Waveform, controlArray, B1_BUFF_SIZE);
     emptyArray[0] = 0;
+    loading(0);
 }
 
 /*
@@ -248,10 +263,10 @@ void defaultWaveformInit()
     controlArray[6] = 100;
     controlArray[7] = 100;
     controlArray[8] = 100;
-    controlArray[9] = 0;
+    controlArray[9] = 100;
     controlArray[10] = 100;
-    controlArray[11] = 0;
-    controlArray[12] = 0;
+    controlArray[11] = 100;
+    controlArray[12] = 100;
     controlArray[13] = 50;
     controlArray[14] = 50;
     controlArray[15] = 0;
@@ -478,7 +493,7 @@ void updateNote(noteStruct *note, int isTriplet)
         default:
             note->noteArray = emptyArray;
             note->noteElementMax = 1;
-            // Pauses Song and resets to beginning
+            // TODO: Pauses Song and resets to beginning
     }
 }
 
@@ -499,6 +514,9 @@ void linkTimer(timingStruct *timer)
     timerAudio->location64Triplet = 0;
     timerAudio->measure = 0;
     updateTempo(120);
+    timerAudio->loading = 0;
+    timerAudio->loadingCount = 0;
+    timerAudio->loadingDisplay = 0;
 }
 
 void updateTempo(int newTempo)

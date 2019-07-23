@@ -8,6 +8,8 @@
 #ifndef DSPIC33CH512MP506_PINS_H
 #define	DSPIC33CH512MP506_PINS_H
 
+#include "dsPIC33CH512MP506_Audio.h"
+
 #define LED1 LATBbits.LATB14
 #define LED2 LATBbits.LATB15
 #define LED3 LATCbits.LATC12
@@ -124,7 +126,7 @@ void ledInit();
 void updateAmplitude(int arrayIndex);
 void updateLeds(int ledChoice);
 void updateNumberDisplay();
-
+void linkControlTimer(timingStruct *controlTimer);
 void ledsOff();
 
 /* [LED CONTROL DISABLE] disables the automatic LED control. Useful if you need

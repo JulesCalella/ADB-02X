@@ -15,6 +15,8 @@ buttonStruct downButton;
 
 interfaceStruct *controlInterface;
 
+timingStruct *controlTimer;
+
 // ** Global Variables ** //
 enum ledNames{sine = 0, sawtooth, instrument, one, four, seven, f1,
               square, attack, memory, two, five, eight, f2,
@@ -164,6 +166,11 @@ void linkInterface(interfaceStruct *interface)
     controlInterface->rewind = 0;
     controlInterface->load = 0;
     controlInterface->saving = 0;
+}
+
+void linkControlTimer(timingStruct *timer)
+{
+    controlTimer = timer;
 }
 
 void readButtons()
@@ -612,6 +619,171 @@ void updateNumberDisplay()
     
     if(numberDisplay < 10) tens = 10;
     
+    if(controlTimer->loading == 1){
+        switch(controlTimer->loadingDisplay){
+            case 0:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 0;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 0;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 0;
+                break;
+                
+            case 1:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 1;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 0;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 0;
+                break;
+                
+            case 2:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 1;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 1;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 0;
+                break;
+                
+            case 3:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 1;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 1;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 1;
+                break;
+              
+            case 4:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 0;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 1;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 1;
+                break;
+                
+            case 5:
+                ledControlArray[d22a] = 0;
+                ledControlArray[d22b] = 0;
+                ledControlArray[d22c] = 0;
+                ledControlArray[d22d] = 0;
+                ledControlArray[d22e] = 0;
+                ledControlArray[d22f] = 0;
+                ledControlArray[d22g] = 0;
+
+                ledControlArray[d23a] = 0;
+                ledControlArray[d23b] = 0;
+                ledControlArray[d23c] = 0;
+                ledControlArray[d23d] = 0;
+                ledControlArray[d23e] = 0;
+                ledControlArray[d23f] = 0;
+                ledControlArray[d23g] = 0;
+
+                ledControlArray[d24a] = 0;
+                ledControlArray[d24b] = 0;
+                ledControlArray[d24c] = 0;
+                ledControlArray[d24d] = 0;
+                ledControlArray[d24e] = 0;
+                ledControlArray[d24f] = 0;
+                ledControlArray[d24g] = 1;
+                break;
+        }
+        
+        controlTimer->loadingDisplay++;
+        if(controlTimer->loadingDisplay > 5) controlTimer->loadingDisplay = 0;
+        
+        return;
+    }
+    
     switch(ones){
         case 0:
             ledControlArray[d24a] = 1;
@@ -711,6 +883,16 @@ void updateNumberDisplay()
             ledControlArray[d24e] = 0;
             ledControlArray[d24f] = 1;
             ledControlArray[d24g] = 1;
+            break;
+            
+        case 10:
+            ledControlArray[d24a] = 0;
+            ledControlArray[d24b] = 0;
+            ledControlArray[d24c] = 0;
+            ledControlArray[d24d] = 0;
+            ledControlArray[d24e] = 0;
+            ledControlArray[d24f] = 0;
+            ledControlArray[d24g] = 0;
             break;
     }
     

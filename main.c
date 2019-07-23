@@ -264,7 +264,12 @@ interfaceStruct interface;
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 {
     currentLedIncrement();
-    
+    if(timer.loading==1){ 
+        if(timer.loadingCount++ > 30000){
+            timer.loadingCount = 0;
+            updateNumberDisplay();
+        }
+    }
     if(interface.play != 0) timerCalled++;
     
     IFS0bits.T1IF = 0;
@@ -350,20 +355,16 @@ int main(void)
     
     //ledDisplaySequence();
     ledsOff();
-    
+    linkTimer(&timer);
+    linkControlTimer(&timer);
+    linkInterface(&interface);
     defaultWaveformInit();
-    generateAllWaveforms();
-    
     writeSong();
     
     newOutput = 1;
     timerCalled = 0;
     notesInit(&newOutput);
-    
-    linkTimer(&timer);
-    linkInterface(&interface);
     ledInit();
-    updateOutputBuffer(&newOutput);
     
     // Activate Interrupts just before main loop
     timer1Init();
@@ -371,6 +372,9 @@ int main(void)
     i2c1On();
     i2c2On();
     uart1On(); 
+    
+    generateAllWaveforms();
+    updateOutputBuffer(&newOutput);
     
     //int send = 0;
     

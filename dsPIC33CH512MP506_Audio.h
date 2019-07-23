@@ -69,6 +69,9 @@ typedef struct{
     int location64TripletMax;
     int tempo;
     int interruptCount;
+    int loading;
+    int loadingCount;
+    int loadingDisplay;
 }timingStruct;
 
 void generateAllWaveforms();
@@ -109,6 +112,8 @@ void setScoreArray(int x, int y);
 
 //void updateTimer(timingStruct);
 void linkTimer(timingStruct *timer);
+
+void loading(int isLoading);
 
 void updateTempo(int newTempo);
 
