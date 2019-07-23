@@ -1935,3 +1935,13 @@ void tempoLedToggle()
     if(ledControlArray[tempo] == 1) ledControlArray[tempo] = 0;
     else ledControlArray[tempo] = 1;
 }
+
+void tempoLedOn()
+{
+    ledControlArray[tempo] = 1;
+}
+
+void tempoLedOff()
+{
+    ledControlArray[tempo] = 0;
+}

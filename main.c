@@ -303,8 +303,12 @@ void updateTimer()
             timer.location64 = 0;
         }
 
-        if((timer.location64 % 16) == 0){
-            tempoLedToggle();
+        if(timer.location64 == 0){
+            tempoLedOn();
+        } else if((timer.location64 % 16) == 0){
+            tempoLedOn();
+        } else if(((timer.location64 % 16) - 2) == 0){
+            tempoLedOff();
         }
     }
 }

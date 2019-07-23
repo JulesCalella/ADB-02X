@@ -204,5 +204,8 @@ void ledDeviceFail();
 
 void currentLedIncrement();
 
+void tempoLedOn();
+void tempoLedOff();
+
 #endif	/* DSPIC33CH512MP506_PINS_H */
 
