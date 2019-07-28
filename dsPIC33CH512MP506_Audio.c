@@ -254,25 +254,25 @@ void clearAudioArray(int *audioArray, int numBytes)
  */
 void defaultWaveformInit()
 {
-    controlArray[0] = 100;
-    controlArray[1] = 100;
-    controlArray[2] = 100;
-    controlArray[3] = 100;
-    controlArray[4] = 100;
-    controlArray[5] = 100;
-    controlArray[6] = 100;
-    controlArray[7] = 100;
-    controlArray[8] = 100;
+    controlArray[0] = 90;
+    controlArray[1] = 50;
+    controlArray[2] = 70;
+    controlArray[3] = 30;
+    controlArray[4] = 15;
+    controlArray[5] = 15;
+    controlArray[6] = 25;
+    controlArray[7] = 0;
+    controlArray[8] = 0;
     controlArray[9] = 100;
-    controlArray[10] = 100;
-    controlArray[11] = 100;
-    controlArray[12] = 100;
+    controlArray[10] = 0;
+    controlArray[11] = 0;
+    controlArray[12] = 0;
     controlArray[13] = 50;
     controlArray[14] = 50;
     controlArray[15] = 0;
     controlArray[16] = 0;
     controlArray[17] = 0;
-    controlArray[18] = 120;
+    controlArray[18] = 140;
 }
 
 /*
@@ -504,6 +504,88 @@ void setScoreArray(int x, int y)
     timerAudio->measure = 0;
     timerAudio->location64 = 0;
     timerAudio->location64Triplet = 0;
+}
+
+void rewind()
+{
+    int noteNum;
+    for(noteNum=0; noteNum<NUM_NOTES; noteNum++){
+        notes[noteNum].noteOn = 0;
+    }
+    
+    int currentTimerMeasure = timerAudio->measure--;
+    int currentScoreMeasure;
+    
+    do{
+        currentArrayX -= NUM_NOTES;
+        if(currentArrayX < 0){
+            currentArrayX = ARRAY_SIZE_X - NUM_NOTES;
+            currentArrayY--;
+            
+            if(currentArrayY < 0){
+                currentArrayX = 0;
+                currentArrayY = 0;
+                timerAudio->interruptCount = 0;
+                return;
+            }
+        }
+        
+        currentScoreMeasure = (scoreArray1[currentArrayX+2][currentArrayY] << 8) | scoreArray1[currentArrayX+3][currentArrayY];
+    } while(currentScoreMeasure >= currentTimerMeasure);
+    
+    timerAudio->measure = currentTimerMeasure;
+    timerAudio->location64 = 0;
+    timerAudio->interruptCount = 0;
+    
+    readScoreArray();
+}
+
+void rewindToBeginning()
+{
+    int noteNum;
+    for(noteNum=0; noteNum<NUM_NOTES; noteNum++){
+        notes[noteNum].noteOn = 0;
+    }
+    
+    currentArrayX = 0;
+    currentArrayY = 0;
+    
+    timerAudio->measure = 0;
+    timerAudio->location64 = 0;
+    timerAudio->interruptCount = 0;
+}
+
+void fastForward()
+{
+    int noteNum;
+    for(noteNum=0; noteNum<NUM_NOTES; noteNum++){
+        notes[noteNum].noteOn = 0;
+    }
+    
+    int currentTimerMeasure = timerAudio->measure++;
+    int currentScoreMeasure;
+    
+    do{
+        currentArrayX += NUM_NOTES;
+        if(currentArrayX >= ARRAY_SIZE_X){
+            currentArrayX = 0;
+            currentArrayY++;
+            
+            // TODO: Check if end of song with end of song marker
+            if(currentArrayY >= ARRAY_SIZE_Y){
+                currentArrayY--;
+                return;
+            }
+        }
+        
+        currentScoreMeasure = (scoreArray1[currentArrayX+2][currentArrayY] << 8) | scoreArray1[currentArrayX+3][currentArrayY];
+    } while(currentScoreMeasure < currentTimerMeasure);
+    
+    timerAudio->measure = currentTimerMeasure;
+    timerAudio->location64 = 0;
+    timerAudio->interruptCount = 0;
+    
+    readScoreArray();
 }
 
 void linkTimer(timingStruct *timer)

@@ -110,6 +110,10 @@ void writeSong();
 
 void setScoreArray(int x, int y);
 
+void rewind();
+
+void rewindToBeginning();
+
 //void updateTimer(timingStruct);
 void linkTimer(timingStruct *timer);
 

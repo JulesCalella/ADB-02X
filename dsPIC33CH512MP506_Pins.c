@@ -208,7 +208,9 @@ void ctrlRewind(int buttonHold)
     downButton.isActive = 0;
     
     if(buttonHold == 0){
-        setScoreArray(0, 0);
+        rewind();
+    } else {
+        rewindToBeginning();
     }
 }
 
@@ -239,6 +241,8 @@ void ctrlFastForward(int buttonHold)
     rightButton.isActive = 0;
     upButton.isActive = 0;
     downButton.isActive = 0;
+    
+    fastForward();
 }
 
 void ctrlLoad(int buttonHold)
@@ -313,8 +317,6 @@ void ctrlLeft(int buttonHold)
     if(interfaceSelection < 0) interfaceSelection = 19;
     
     selectionChanged = 1;
-    
-    // UPDATE LEDS
 }
 
 void ctrlRight(int buttonHold)
@@ -333,8 +335,6 @@ void ctrlRight(int buttonHold)
     if(interfaceSelection > 19) interfaceSelection = 0;
     
     selectionChanged = 1;
-    
-    // UPDATE LEDS
 }
 
 void ctrlUp(int buttonHold)
