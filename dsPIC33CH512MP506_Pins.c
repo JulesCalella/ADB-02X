@@ -18,13 +18,6 @@ interfaceStruct *controlInterface;
 timingStruct *controlTimer;
 
 // ** Global Variables ** //
-enum ledNames{sine = 0, sawtooth, instrument, one, four, seven, f1,
-              square, attack, memory, two, five, eight, f2,
-              triangle, decay, tempo, three, six, nine, f3,
-              d22e, d22d, d22c, d22b, d22a, d22f, d22g,
-              d23e, d23d, d23c, d23b, d23a, d23f, d23g,
-              d24e, d24d, d24c, d24b, d24a, d24f, d24g};
-              
 int currentLed = 0;
 int ledControlEnabled = 1;
 int ledControlArray[42];
@@ -33,7 +26,7 @@ int numberDisplay;
 int interfaceSelection = 0;
 int selectionAmplitude;
 int selectionChanged = 1;
-int audioControlArray[19];
+int audioControlArray[NUM_FN];
 
 int tempCounter = 0;
 
@@ -116,6 +109,8 @@ int pinInit()
     RPOR5bits.RP42R = 7;    // LRCK = RP42/RB10
     RPOR4bits.RP40R = 0;    // RB8 tied to default pin
     RPOR4bits.RP41R = 0;    // RB9 tied to default pin
+    RPOR13bits.RP58R = 1;   // U1TX tied to pin 52 (RC10)
+    RPINR18bits.U1RXR = 53; // U1RX tied to pin 51 (RP53)
     NVMKEY = 0x55;
     NVMKEY = 0xAA;
     __builtin_write_RPCON(0x0800);
@@ -260,9 +255,9 @@ void ctrlLoad(int buttonHold)
     // Prevent accidental loading
     if(buttonHold == 0) return;
     
-    if(interfaceSelection == memory){
+    if(interfaceSelection == 6){
         // Load Song from EEPROM
-    } else if(interfaceSelection == instrument){
+    } else if(interfaceSelection == 7){
         // Load Instrument from EEPROM
     }
     
@@ -285,9 +280,9 @@ void ctrlSave(int buttonHold)
     // Don't save unless the button is held
     if(buttonHold == 0) return;
     
-    if(interfaceSelection == memory){
+    if(interfaceSelection == 6){
         // Save song to EEPROM
-    } else if(interfaceSelection == instrument){
+    } else if(interfaceSelection == 7){
         // Save instrument to EEPROM
     } else {
         int resume = 1;
@@ -314,7 +309,7 @@ void ctrlLeft(int buttonHold)
     downButton.isActive = 0;
     
     interfaceSelection--;
-    if(interfaceSelection < 0) interfaceSelection = 19;
+    if(interfaceSelection < 0) interfaceSelection = NUM_FN - 1;
     
     selectionChanged = 1;
 }
@@ -332,7 +327,7 @@ void ctrlRight(int buttonHold)
     downButton.isActive = 0;
     
     interfaceSelection++;
-    if(interfaceSelection > 19) interfaceSelection = 0;
+    if(interfaceSelection > NUM_FN - 1) interfaceSelection = 0;
     
     selectionChanged = 1;
 }
@@ -447,42 +442,42 @@ void updateInterface()
         switch(interfaceSelection){
             case 0: // Sine Wave
                 updateAmplitude(9);
-                updateLeds(sine);
+                updateLeds(FN_SINE);
                 break;
 
             case 1: // Square Wave
                 updateAmplitude(10);
-                updateLeds(square);
+                updateLeds(FN_SQUARE);
                 break;
 
             case 2: // Triangle Wave
                 updateAmplitude(11);
-                updateLeds(triangle);
+                updateLeds(FN_TRIANGLE);
                 break;
 
             case 3: // Sawtooth Wave
                 updateAmplitude(12);
-                updateLeds(sawtooth);
+                updateLeds(FN_SAWTOOTH);
                 break;
 
             case 4: // Attack
                 updateAmplitude(13);
-                updateLeds(attack);
+                updateLeds(FN_ATTACK);
                 break;
 
             case 5: // Decay
                 updateAmplitude(14);
-                updateLeds(decay);
+                updateLeds(FN_DECAY);
                 break;
 
             case 6: // Instrument
 
-                updateLeds(instrument);
+                updateLeds(FN_INSTRUMENT);
                 break;
 
             case 7: // Memory
 
-                updateLeds(memory);
+                updateLeds(FN_MEMORY);
                 break;
             case 8: // Tempo
                 updateAmplitude(18);
@@ -493,62 +488,62 @@ void updateInterface()
                 
             case 9: // Overtone 1
                 updateAmplitude(0);
-                updateLeds(one);
+                updateLeds(FN_ONE);
                 break;
 
             case 10: // Overtone 2
                 updateAmplitude(1);
-                updateLeds(two);
+                updateLeds(FN_TWO);
                 break;
 
             case 11: // Overtone 3
                 updateAmplitude(2);
-                updateLeds(three);
+                updateLeds(FN_THREE);
                 break;
 
             case 12: // Overtone 4
                 updateAmplitude(3);
-                updateLeds(four);
+                updateLeds(FN_FOUR);
                 break;
 
             case 13: // Overtone 5
                 updateAmplitude(4);
-                updateLeds(five);
+                updateLeds(FN_FIVE);
                 break;
 
             case 14: // Overtone 6
                 updateAmplitude(5);
-                updateLeds(six);
+                updateLeds(FN_SIX);
                 break;
 
             case 15: // Overtone 7
                 updateAmplitude(6);
-                updateLeds(seven);
+                updateLeds(FN_SEVEN);
                 break;
 
             case 16: // Overtone 8
                 updateAmplitude(7);
-                updateLeds(eight);
+                updateLeds(FN_EIGHT);
                 break;
 
             case 17: // Overtone 9
                 updateAmplitude(8);
-                updateLeds(nine);
+                updateLeds(FN_NINE);
                 break;
 
             case 18: // Function 1
                 updateAmplitude(15);
-                updateLeds(f1);
+                updateLeds(FN_F1);
                 break;
 
             case 19: // Function 2
                 updateAmplitude(16);
-                updateLeds(f2);
+                updateLeds(FN_F2);
                 break;
 
             case 20: // Function 3
                 updateAmplitude(17);
-                updateLeds(f3);
+                updateLeds(FN_F3);
                 break;
         }
 
@@ -622,159 +617,159 @@ void updateNumberDisplay()
     if(controlTimer->loading == 1){
         switch(controlTimer->loadingDisplay){
             case 0:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 0;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 0;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 0;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 0;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 0;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 0;
                 break;
                 
             case 1:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 1;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 1;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 0;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 0;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 0;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 0;
                 break;
                 
             case 2:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 1;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 1;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 1;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 1;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 0;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 0;
                 break;
                 
             case 3:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 1;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 1;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 1;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 1;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 1;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 1;
                 break;
               
             case 4:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 0;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 0;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 1;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 1;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 1;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 1;
                 break;
                 
             case 5:
-                ledControlArray[d22a] = 0;
-                ledControlArray[d22b] = 0;
-                ledControlArray[d22c] = 0;
-                ledControlArray[d22d] = 0;
-                ledControlArray[d22e] = 0;
-                ledControlArray[d22f] = 0;
-                ledControlArray[d22g] = 0;
+                ledControlArray[D22A] = 0;
+                ledControlArray[D22B] = 0;
+                ledControlArray[D22C] = 0;
+                ledControlArray[D22D] = 0;
+                ledControlArray[D22E] = 0;
+                ledControlArray[D22F] = 0;
+                ledControlArray[D22G] = 0;
 
-                ledControlArray[d23a] = 0;
-                ledControlArray[d23b] = 0;
-                ledControlArray[d23c] = 0;
-                ledControlArray[d23d] = 0;
-                ledControlArray[d23e] = 0;
-                ledControlArray[d23f] = 0;
-                ledControlArray[d23g] = 0;
+                ledControlArray[D23A] = 0;
+                ledControlArray[D23B] = 0;
+                ledControlArray[D23C] = 0;
+                ledControlArray[D23D] = 0;
+                ledControlArray[D23E] = 0;
+                ledControlArray[D23F] = 0;
+                ledControlArray[D23G] = 0;
 
-                ledControlArray[d24a] = 0;
-                ledControlArray[d24b] = 0;
-                ledControlArray[d24c] = 0;
-                ledControlArray[d24d] = 0;
-                ledControlArray[d24e] = 0;
-                ledControlArray[d24f] = 0;
-                ledControlArray[d24g] = 1;
+                ledControlArray[D24A] = 0;
+                ledControlArray[D24B] = 0;
+                ledControlArray[D24C] = 0;
+                ledControlArray[D24D] = 0;
+                ledControlArray[D24E] = 0;
+                ledControlArray[D24F] = 0;
+                ledControlArray[D24G] = 1;
                 break;
         }
         
@@ -786,328 +781,328 @@ void updateNumberDisplay()
     
     switch(ones){
         case 0:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 1;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 0;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 1;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 0;
             break;
             
         case 1:
-            ledControlArray[d24a] = 0;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 0;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 0;
-            ledControlArray[d24g] = 0;
+            ledControlArray[D24A] = 0;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 0;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 0;
+            ledControlArray[D24G] = 0;
             break;
             
         case 2:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 0;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 1;
-            ledControlArray[d24f] = 0;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 0;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 1;
+            ledControlArray[D24F] = 0;
+            ledControlArray[D24G] = 1;
             break;
             
         case 3:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 0;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 0;
+            ledControlArray[D24G] = 1;
             break;
             
         case 4:
-            ledControlArray[d24a] = 0;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 0;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 0;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 0;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 1;
             break;
             
         case 5:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 0;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 0;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 1;
             break;
             
         case 6:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 0;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 1;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 0;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 1;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 1;
             break;
             
         case 7:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 0;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 0;
-            ledControlArray[d24g] = 0;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 0;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 0;
+            ledControlArray[D24G] = 0;
             break;
             
         case 8:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 1;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 1;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 1;
             break;
             
         case 9:
-            ledControlArray[d24a] = 1;
-            ledControlArray[d24b] = 1;
-            ledControlArray[d24c] = 1;
-            ledControlArray[d24d] = 1;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 1;
-            ledControlArray[d24g] = 1;
+            ledControlArray[D24A] = 1;
+            ledControlArray[D24B] = 1;
+            ledControlArray[D24C] = 1;
+            ledControlArray[D24D] = 1;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 1;
+            ledControlArray[D24G] = 1;
             break;
             
         case 10:
-            ledControlArray[d24a] = 0;
-            ledControlArray[d24b] = 0;
-            ledControlArray[d24c] = 0;
-            ledControlArray[d24d] = 0;
-            ledControlArray[d24e] = 0;
-            ledControlArray[d24f] = 0;
-            ledControlArray[d24g] = 0;
+            ledControlArray[D24A] = 0;
+            ledControlArray[D24B] = 0;
+            ledControlArray[D24C] = 0;
+            ledControlArray[D24D] = 0;
+            ledControlArray[D24E] = 0;
+            ledControlArray[D24F] = 0;
+            ledControlArray[D24G] = 0;
             break;
     }
     
     switch(tens){
         case 0:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 1;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 0;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 1;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 0;
             break;
             
         case 1:
-            ledControlArray[d23a] = 0;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 0;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 0;
-            ledControlArray[d23g] = 0;
+            ledControlArray[D23A] = 0;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 0;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 0;
+            ledControlArray[D23G] = 0;
             break;
             
         case 2:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 0;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 1;
-            ledControlArray[d23f] = 0;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 0;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 1;
+            ledControlArray[D23F] = 0;
+            ledControlArray[D23G] = 1;
             break;
             
         case 3:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 0;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 0;
+            ledControlArray[D23G] = 1;
             break;
             
         case 4:
-            ledControlArray[d23a] = 0;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 0;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 0;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 0;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 1;
             break;
             
         case 5:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 0;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 0;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 1;
             break;
             
         case 6:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 0;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 1;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 0;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 1;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 1;
             break;
             
         case 7:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 0;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 0;
-            ledControlArray[d23g] = 0;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 0;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 0;
+            ledControlArray[D23G] = 0;
             break;
             
         case 8:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 1;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 1;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 1;
             break;
             
         case 9:
-            ledControlArray[d23a] = 1;
-            ledControlArray[d23b] = 1;
-            ledControlArray[d23c] = 1;
-            ledControlArray[d23d] = 1;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 1;
-            ledControlArray[d23g] = 1;
+            ledControlArray[D23A] = 1;
+            ledControlArray[D23B] = 1;
+            ledControlArray[D23C] = 1;
+            ledControlArray[D23D] = 1;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 1;
+            ledControlArray[D23G] = 1;
             break;
             
         // Special case when value less than 10 to hide '0'
         case 10:
-            ledControlArray[d23a] = 0;
-            ledControlArray[d23b] = 0;
-            ledControlArray[d23c] = 0;
-            ledControlArray[d23d] = 0;
-            ledControlArray[d23e] = 0;
-            ledControlArray[d23f] = 0;
-            ledControlArray[d23g] = 0;
+            ledControlArray[D23A] = 0;
+            ledControlArray[D23B] = 0;
+            ledControlArray[D23C] = 0;
+            ledControlArray[D23D] = 0;
+            ledControlArray[D23E] = 0;
+            ledControlArray[D23F] = 0;
+            ledControlArray[D23G] = 0;
             break;
     }
     
     switch(hundreds){
         case 0:
-            ledControlArray[d22a] = 0; //1;
-            ledControlArray[d22b] = 0; //1;
-            ledControlArray[d22c] = 0; //1;
-            ledControlArray[d22d] = 0; //1;
-            ledControlArray[d22e] = 0; //1;
-            ledControlArray[d22f] = 0; //1;
-            ledControlArray[d22g] = 0;
+            ledControlArray[D22A] = 0; //1;
+            ledControlArray[D22B] = 0; //1;
+            ledControlArray[D22C] = 0; //1;
+            ledControlArray[D22D] = 0; //1;
+            ledControlArray[D22E] = 0; //1;
+            ledControlArray[D22F] = 0; //1;
+            ledControlArray[D22G] = 0;
             break;
             
         case 1:
-            ledControlArray[d22a] = 0;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 0;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 0;
-            ledControlArray[d22g] = 0;
+            ledControlArray[D22A] = 0;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 0;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 0;
+            ledControlArray[D22G] = 0;
             break;
             
         case 2:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 0;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 1;
-            ledControlArray[d22f] = 0;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 0;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 1;
+            ledControlArray[D22F] = 0;
+            ledControlArray[D22G] = 1;
             break;
             
         case 3:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 0;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 0;
+            ledControlArray[D22G] = 1;
             break;
             
         case 4:
-            ledControlArray[d22a] = 0;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 0;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 1;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 0;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 0;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 1;
+            ledControlArray[D22G] = 1;
             break;
             
         case 5:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 0;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 1;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 0;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 1;
+            ledControlArray[D22G] = 1;
             break;
             
         case 6:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 0;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 1;
-            ledControlArray[d22f] = 1;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 0;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 1;
+            ledControlArray[D22F] = 1;
+            ledControlArray[D22G] = 1;
             break;
             
         case 7:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 0;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 0;
-            ledControlArray[d22g] = 0;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 0;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 0;
+            ledControlArray[D22G] = 0;
             break;
             
         case 8:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 1;
-            ledControlArray[d22f] = 1;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 1;
+            ledControlArray[D22F] = 1;
+            ledControlArray[D22G] = 1;
             break;
             
         case 9:
-            ledControlArray[d22a] = 1;
-            ledControlArray[d22b] = 1;
-            ledControlArray[d22c] = 1;
-            ledControlArray[d22d] = 1;
-            ledControlArray[d22e] = 0;
-            ledControlArray[d22f] = 1;
-            ledControlArray[d22g] = 1;
+            ledControlArray[D22A] = 1;
+            ledControlArray[D22B] = 1;
+            ledControlArray[D22C] = 1;
+            ledControlArray[D22D] = 1;
+            ledControlArray[D22E] = 0;
+            ledControlArray[D22F] = 1;
+            ledControlArray[D22G] = 1;
             break;
     }
 }
@@ -1834,52 +1829,52 @@ void ledDisplaySequence()
     
     ledControlDisable();
     
-    singleLedControl(tempo); ledTimeDelay(delay);
-    singleLedControl(memory); ledTimeDelay(delay);
-    singleLedControl(instrument); ledTimeDelay(delay);
-    singleLedControl(decay); ledTimeDelay(delay);
-    singleLedControl(attack); ledTimeDelay(delay);
-    singleLedControl(sawtooth); ledTimeDelay(delay);
-    singleLedControl(triangle); ledTimeDelay(delay);
-    singleLedControl(square); ledTimeDelay(delay);
-    singleLedControl(sine); ledTimeDelay(delay);
-    singleLedControl(one); ledTimeDelay(delay);
-    singleLedControl(two); ledTimeDelay(delay);
-    singleLedControl(three); ledTimeDelay(delay);
-    singleLedControl(four); ledTimeDelay(delay);
-    singleLedControl(five); ledTimeDelay(delay);
-    singleLedControl(six); ledTimeDelay(delay);
-    singleLedControl(seven); ledTimeDelay(delay);
-    singleLedControl(eight); ledTimeDelay(delay);
-    singleLedControl(nine); ledTimeDelay(delay);
-    singleLedControl(f1); ledTimeDelay(delay);
-    singleLedControl(f2); ledTimeDelay(delay);
-    singleLedControl(f3); ledTimeDelay(delay);
-    singleLedControl(d22d); ledTimeDelay(delay);
-    singleLedControl(d22c); ledTimeDelay(delay);
-    singleLedControl(d22g); ledTimeDelay(delay);
-    singleLedControl(d22f); ledTimeDelay(delay);
-    singleLedControl(d22a); ledTimeDelay(delay);
-    singleLedControl(d23a); ledTimeDelay(delay);
-    singleLedControl(d23b); ledTimeDelay(delay);
-    singleLedControl(d23g); ledTimeDelay(delay);
-    singleLedControl(d23e); ledTimeDelay(delay);
-    singleLedControl(d23d); ledTimeDelay(delay);
-    singleLedControl(d24d); ledTimeDelay(delay);
-    singleLedControl(d24c); ledTimeDelay(delay);
-    singleLedControl(d24g); ledTimeDelay(delay);
-    singleLedControl(d24f); ledTimeDelay(delay);
-    singleLedControl(d24a); ledTimeDelay(delay);
-    singleLedControl(d24b); ledTimeDelay(delay);
-    singleLedControl(d24c); ledTimeDelay(delay);
-    singleLedControl(d24d); ledTimeDelay(delay);
-    singleLedControl(d23d); ledTimeDelay(delay);
-    singleLedControl(d22d); ledTimeDelay(delay);
-    singleLedControl(f3); ledTimeDelay(delay);
-    singleLedControl(f2); ledTimeDelay(delay);
-    singleLedControl(f1); ledTimeDelay(delay);
-    singleLedControl(nine); ledTimeDelay(delay);
-    singleLedControl(tempo); ledTimeDelay(delay);
+    singleLedControl(FN_TEMPO); ledTimeDelay(delay);
+    singleLedControl(FN_MEMORY); ledTimeDelay(delay);
+    singleLedControl(FN_INSTRUMENT); ledTimeDelay(delay);
+    singleLedControl(FN_DECAY); ledTimeDelay(delay);
+    singleLedControl(FN_ATTACK); ledTimeDelay(delay);
+    singleLedControl(FN_SAWTOOTH); ledTimeDelay(delay);
+    singleLedControl(FN_TRIANGLE); ledTimeDelay(delay);
+    singleLedControl(FN_SQUARE); ledTimeDelay(delay);
+    singleLedControl(FN_SINE); ledTimeDelay(delay);
+    singleLedControl(FN_ONE); ledTimeDelay(delay);
+    singleLedControl(FN_TWO); ledTimeDelay(delay);
+    singleLedControl(FN_THREE); ledTimeDelay(delay);
+    singleLedControl(FN_FOUR); ledTimeDelay(delay);
+    singleLedControl(FN_FIVE); ledTimeDelay(delay);
+    singleLedControl(FN_SIX); ledTimeDelay(delay);
+    singleLedControl(FN_SEVEN); ledTimeDelay(delay);
+    singleLedControl(FN_EIGHT); ledTimeDelay(delay);
+    singleLedControl(FN_NINE); ledTimeDelay(delay);
+    singleLedControl(FN_F1); ledTimeDelay(delay);
+    singleLedControl(FN_F2); ledTimeDelay(delay);
+    singleLedControl(FN_F3); ledTimeDelay(delay);
+    singleLedControl(D22D); ledTimeDelay(delay);
+    singleLedControl(D22C); ledTimeDelay(delay);
+    singleLedControl(D22G); ledTimeDelay(delay);
+    singleLedControl(D22F); ledTimeDelay(delay);
+    singleLedControl(D22A); ledTimeDelay(delay);
+    singleLedControl(D23A); ledTimeDelay(delay);
+    singleLedControl(D23B); ledTimeDelay(delay);
+    singleLedControl(D23G); ledTimeDelay(delay);
+    singleLedControl(D23E); ledTimeDelay(delay);
+    singleLedControl(D23D); ledTimeDelay(delay);
+    singleLedControl(D24D); ledTimeDelay(delay);
+    singleLedControl(D24C); ledTimeDelay(delay);
+    singleLedControl(D24G); ledTimeDelay(delay);
+    singleLedControl(D24F); ledTimeDelay(delay);
+    singleLedControl(D24A); ledTimeDelay(delay);
+    singleLedControl(D24B); ledTimeDelay(delay);
+    singleLedControl(D24C); ledTimeDelay(delay);
+    singleLedControl(D24D); ledTimeDelay(delay);
+    singleLedControl(D23D); ledTimeDelay(delay);
+    singleLedControl(D22D); ledTimeDelay(delay);
+    singleLedControl(FN_F3); ledTimeDelay(delay);
+    singleLedControl(FN_F2); ledTimeDelay(delay);
+    singleLedControl(FN_F1); ledTimeDelay(delay);
+    singleLedControl(FN_NINE); ledTimeDelay(delay);
+    singleLedControl(FN_TEMPO); ledTimeDelay(delay);
     ledsOff();ledTimeDelay(delay);
     
     ledControlEnable();
@@ -2108,22 +2103,22 @@ void set_wp(int selection)
 
 void ledDeviceFail()
 {
-    singleLedControl(f1); ledTimeDelay(1000);
-    singleLedControl(f3); ledTimeDelay(1000);
+    singleLedControl(FN_F1); ledTimeDelay(1000);
+    singleLedControl(FN_F3); ledTimeDelay(1000);
 }
 
 void tempoLedToggle()
 {
-    if(ledControlArray[tempo] == 1) ledControlArray[tempo] = 0;
-    else ledControlArray[tempo] = 1;
+    if(ledControlArray[FN_TEMPO] == 1) ledControlArray[FN_TEMPO] = 0;
+    else ledControlArray[FN_TEMPO] = 1;
 }
 
 void tempoLedOn()
 {
-    ledControlArray[tempo] = 1;
+    ledControlArray[FN_TEMPO] = 1;
 }
 
 void tempoLedOff()
 {
-    ledControlArray[tempo] = 0;
+    ledControlArray[FN_TEMPO] = 0;
 }

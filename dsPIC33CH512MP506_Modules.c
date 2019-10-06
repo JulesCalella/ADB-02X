@@ -528,6 +528,18 @@ int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes)
  * ---------------------------------------------------------------------------*/
 int uart1Init()
 {
+    uart1SetBaudRate(9600);
+    
+    U1MODE = 0x0030;    // 0000 0000 0011 0000
+    U1MODEHbits.BCLKSEL = 0;    // Baud Clock = FOSC/2
+    U1MODEHbits.HALFDPLX =0;    // Full Duplex when UARTEN and UTXEN set
+    U1MODEHbits.RUNOVF = 1;     // RX shift register continues to run but U1RXREG not overwritten
+    U1MODEHbits.URXINV = 0;     // Polarity not inverted; Idle high
+    U1MODEHbits.UTXINV = 0;     // Polarity not inverted; Idle high
+    U1MODEHbits.STSEL = 0;      // 1 Stop bit, 1 check
+    U1MODEHbits.FLO = 0;        // Flow control off
+    
+    uart1On();
     
     return 0;
 }
@@ -537,7 +549,7 @@ int uart1Init()
  * ---------------------------------------------------------------------------*/
 void uart1On()
 {
-    
+    U1MODEbits.UARTEN = 1;
 }
 
 /* -----------------------------------------------------------------------------
@@ -545,16 +557,21 @@ void uart1On()
  * ---------------------------------------------------------------------------*/
 void uart1Off()
 {
-    
+    U1MODEbits.UARTEN = 0;
 }
 
 /* -----------------------------------------------------------------------------
  * UART 1 SET BAUD RATE - 
  * ---------------------------------------------------------------------------*/
-float uart1SetBaudRate()
+float uart1SetBaudRate(float baudRate)
 {
+    // Baud Source: FOSC/2 <U1MODEH>
+    // FOSC = 96MHz
+    unsigned long int u1brg = (unsigned long int)(((SYSTEM_CLOCK / 2.0) / (16.0 * baudRate)) - 0.5);
     
-    return 0.0;
+    U1BRG = u1brg;
+    
+    return uart1ReadBaudRate();
 }
 
 /* -----------------------------------------------------------------------------
@@ -562,8 +579,25 @@ float uart1SetBaudRate()
  * ---------------------------------------------------------------------------*/
 float uart1ReadBaudRate()
 {
+    float brg = ((SYSTEM_CLOCK / 2.0) / (16.0 * (U1BRG + 1)));
     
-    return 0.0;
+    return brg;
+}
+
+/* -----------------------------------------------------------------------------
+ * UART 1 READ - 
+ * ---------------------------------------------------------------------------*/
+char uart1Read()
+{
+    return U1RXREG;
+}
+
+/* -----------------------------------------------------------------------------
+ * UART 1 READ - 
+ * ---------------------------------------------------------------------------*/
+void uart1Write(char toSendData)
+{
+    U1TXREG = toSendData;
 }
 
 /* -----------------------------------------------------------------------------

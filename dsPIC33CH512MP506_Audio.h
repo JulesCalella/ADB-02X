@@ -51,14 +51,22 @@ typedef struct{
     int locationEnd;
     int triplet;    // True (1), False (0)
     int pitch;
-    int dynamic;
+    int dynamic;    // Sustain volume
     int *noteArray;
     int noteElement;
     int noteElementMax;
-    int attackOn;
-    int attackElement;
+    int attackOn;   
+    int attackStart;
+    int attackEnd;
+    int attackCurrent;
+    int decayOn;
+    int decayStart;
+    int decayEnd;
+    int decayCurrent;
     int releaseOn;
-    int releaseElement;
+    int releaseStart;
+    int releaseEnd;
+    int releaseCurrent;
 }noteStruct;
 
 typedef struct{
@@ -113,6 +121,8 @@ void setScoreArray(int x, int y);
 void rewind();
 
 void rewindToBeginning();
+
+void fastForward();
 
 //void updateTimer(timingStruct);
 void linkTimer(timingStruct *timer);

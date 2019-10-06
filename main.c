@@ -353,6 +353,9 @@ int main(void)
     
     // Timer Setup   
     
+    // UART 1 Setup
+    uart1Init();
+    
     //ledDisplaySequence();
     ledsOff();
     linkTimer(&timer);
@@ -376,7 +379,7 @@ int main(void)
     generateAllWaveforms();
     updateOutputBuffer(&newOutput);
     
-    //int send = 0;
+    char send = 0;
     
     while(1)
     {
@@ -384,6 +387,11 @@ int main(void)
         readScoreArray();
         if(interface.play != 0) updateOutputBuffer(&newOutput);
         updateInterface();
+        
+        uart1Write(send);
+        send++;
+        if(send >= 0x7F) send = 0;
+        
     }
     
     return 0;

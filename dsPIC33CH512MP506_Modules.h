@@ -47,10 +47,10 @@ int i2c2Read(int devAddress, int regAddress, int *readData, int numBytes);
 int uart1Init();
 void uart1On();
 void uart1Off();
-float uart1SetBaudRate();
+float uart1SetBaudRate(float baudRate);
 float uart1ReadBaudRate();
-float uart1SetBaudRate();
-float uart1ReadBaudRate();
+char uart1Read();
+void uart1Write(char toSendData);
 
 void dacInit();
 

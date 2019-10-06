@@ -37,6 +37,53 @@
 
 #define WP LATDbits.LATD7
 
+#define NUM_FN 21
+#define FN_SINE 0
+#define FN_SAWTOOTH 1
+#define FN_INSTRUMENT 2
+#define FN_ONE 3
+#define FN_FOUR 4
+#define FN_SEVEN 5
+#define FN_F1 6
+#define FN_SQUARE 7
+#define FN_ATTACK 8
+#define FN_MEMORY 9
+#define FN_TWO 10
+#define FN_FIVE 11
+#define FN_EIGHT 12
+#define FN_F2 13
+#define FN_TRIANGLE 14
+#define FN_DECAY 15
+#define FN_TEMPO 16
+#define FN_THREE 17
+#define FN_SIX 18
+#define FN_NINE 19
+#define FN_F3 20
+
+#define D22E 21
+#define D22D 22
+#define D22C 23
+#define D22B 24
+#define D22A 25
+#define D22F 26
+#define D22G 27
+
+#define D23E 28
+#define D23D 29
+#define D23C 30
+#define D23B 31
+#define D23A 32
+#define D23F 33
+#define D23G 34
+
+#define D24E 35
+#define D24D 36
+#define D24C 37
+#define D24B 38
+#define D24A 39
+#define D24F 40
+#define D24G 41
+
 // FFC Output Pins
 #define FFC1_O LATCbits.LATC10
 #define FFC2_O LATCbits.LATC5
