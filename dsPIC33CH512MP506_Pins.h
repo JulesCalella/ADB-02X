@@ -37,7 +37,7 @@
 
 #define WP LATDbits.LATD7
 
-#define NUM_FN 21
+#define NUM_FN 22
 #define FN_SINE 0
 #define FN_SAWTOOTH 1
 #define FN_INSTRUMENT 2

@@ -4,26 +4,9 @@
 #include "dsPIC33CH512MP506_Modules.h"
 #include "dsPIC33CH512MP506_Pins.h"
 
-/* controlArray Values:
- * 0 - Overtone 1 Amplitude
- * 1 - Overtone 2 Amplitude
- * 2 - Overtone 3 Amplitude
- * 3 - Overtone 4 Amplitude
- * 4 - Overtone 5 Amplitude
- * 5 - Overtone 6 Amplitude
- * 6 - Overtone 7 Amplitude
- * 7 - Overtone 8 Amplitude
- * 8 - Overtone 9 Amplitude
- * 9 - Sine Wave Amplitude
- * 10 - Square Wave Amplitude
- * 11 - Triangle Wave Amplitude
- * 12 - Sawtooth Wave Amplitude
- * 13 - Attack Value
- * 14 - Release Value
- * 15 - Function 1
- * 16 - Function 2
- * 17 - Function 3
- * */
+#define STATE_ARRAY_LENGTH 600
+
+enum noteStates {ATTACK_STATE = 0, DECAY_STATE, SUSTAIN_STATE, RELEASE_STATE};
 
 int c1Waveform[C1_BUFF_SIZE];
 int cSharp1Waveform[CSh1_BUFF_SIZE];
@@ -38,7 +21,10 @@ int a1Waveform[A1_BUFF_SIZE];
 int aSharp1Waveform[ASh1_BUFF_SIZE];
 int b1Waveform[B1_BUFF_SIZE];
 int emptyArray[1];
-int controlArray[NUM_FN];
+int controlArray[NUM_CTRL];
+double attackArray[STATE_ARRAY_LENGTH];
+double decayArray[STATE_ARRAY_LENGTH];
+double releaseArray[STATE_ARRAY_LENGTH];
 
 int scoreArray1[ARRAY_SIZE_X][ARRAY_SIZE_Y];
 int currentArrayX;
@@ -81,8 +67,55 @@ void generateAllWaveforms()
     generateWaveform(a1Waveform, controlArray, A1_BUFF_SIZE);
     generateWaveform(aSharp1Waveform, controlArray, ASh1_BUFF_SIZE);
     generateWaveform(b1Waveform, controlArray, B1_BUFF_SIZE);
+    updateStateArrays();
     emptyArray[0] = 0;
     loading(0);
+}
+
+void updateStateArrays()
+{
+    int currentNote, stateElem;
+    
+    // A value of 0-100 results in a multiplier or 1-5
+    float atkMult = 1.0 + (controlArray[CTRL_ATTACK_MULT] / 25.0);
+    double decayMult = 1.0 - atkMult;
+    
+    int atkElem = (int)((SAMPLING_FREQUENCY / 1000.0) * controlArray[CTRL_ATTACK_DUR]);
+    if(atkElem >= STATE_ARRAY_LENGTH) atkElem = STATE_ARRAY_LENGTH;
+    
+    int decElem = (int)((SAMPLING_FREQUENCY / 1000.0) * controlArray[CTRL_DECAY_DUR]);
+    if(decElem >= STATE_ARRAY_LENGTH) decElem = STATE_ARRAY_LENGTH;
+    
+    int relElem = (int)((SAMPLING_FREQUENCY / 1000.0) * controlArray[CTRL_RELEASE_DUR]);
+    if(relElem >= STATE_ARRAY_LENGTH) relElem = STATE_ARRAY_LENGTH;
+    
+    double atkElemF = atkElem * 1.0;
+    double decElemF = decElem * 1.0;
+    double relElemF = relElem * 1.0;
+    
+    // Generate Attack
+    for(stateElem = 0; stateElem < atkElem; stateElem++){
+        attackArray[stateElem] = (atkMult * stateElem) / atkElemF;
+    }
+
+    // Generate Decay
+    for(stateElem = 0; stateElem < decElem; stateElem++){
+        decayArray[stateElem] = ((decayMult * stateElem) / decElemF) + atkMult;
+    }
+    
+    // Generate Release
+    for(stateElem = 0; stateElem < relElem; stateElem++){
+        releaseArray[stateElem] = ((-1 * stateElem) / relElemF) + 1;
+    }
+    
+    // Reset state element and state to account for shortened duration (bounds check)
+    for(currentNote = 0; currentNote < NUM_NOTES; currentNote++){
+        notes[currentNote].stateElement = 0;
+        notes[currentNote].currentState = ATTACK_STATE;
+        notes[currentNote].attackElements = atkElem;
+        notes[currentNote].decayElements = decElem;
+        notes[currentNote].releaseElements = relElem;
+    }
 }
 
 /*
@@ -91,10 +124,11 @@ void generateAllWaveforms()
 void generateWaveform(int *audioArray, int *controlArray, int buffSize)
 {
     clearAudioArray(audioArray, buffSize);
-    if(controlArray[9] != 0)  generateSineWave(audioArray, controlArray[9], buffSize);
-    if(controlArray[10] != 0) generateSquareWave(audioArray, controlArray[10], buffSize);
-    if(controlArray[11] != 0) generateTriangleWave(audioArray, controlArray[11], buffSize);
-    if(controlArray[12] != 0) generateSawWave(audioArray, controlArray[12], buffSize);
+    if(controlArray[CTRL_SINE_AMP] != 0)  generateSineWave(audioArray, controlArray[CTRL_SINE_AMP], buffSize);
+    if(controlArray[CTRL_SQUARE_AMP] != 0) generateSquareWave(audioArray, controlArray[CTRL_SQUARE_AMP], buffSize);
+    if(controlArray[CTRL_TRIANGLE_AMP] != 0) generateTriangleWave(audioArray, controlArray[CTRL_TRIANGLE_AMP], buffSize);
+    if(controlArray[CTRL_SAWTOOTH_AMP] != 0) generateSawWave(audioArray, controlArray[CTRL_SAWTOOTH_AMP], buffSize);
+    if(controlArray[CTRL_BIT_AMP] != 0) generateBitWave(audioArray, controlArray[CTRL_BIT_AMP], buffSize);
 }
 
 /*
@@ -110,7 +144,7 @@ void generateSineWave(int *audioArray, int amplitude, int numBytes)
     }
     
     // Overtones
-    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+    for(overtoneNum=CTRL_OVERTONE1; overtoneNum<=(CTRL_OVERTONE1 + 8); overtoneNum++){
         if(controlArray[overtoneNum] != 0){
             overtoneAmplitude = (controlArray[overtoneNum]/100.0) * amplitude;
             for(i=0; i<numBytes; i++){
@@ -139,7 +173,7 @@ void generateSquareWave(int *audioArray, int amplitude, int numBytes)
     
     // Overtones
     int polarityThresh, toggleThreshHigh, toggleThreshLow;
-    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+    for(overtoneNum=CTRL_OVERTONE1; overtoneNum<=(CTRL_OVERTONE1 + 8); overtoneNum++){
         if(controlArray[overtoneNum] != 0){
             overtoneAmplitude = (controlArray[overtoneNum] / 100.0) * amplitude;
             toggleThreshHigh = numBytes / (2 * (overtoneNum+2));
@@ -184,7 +218,7 @@ void generateTriangleWave(int *audioArray, int amplitude, int numBytes)
     
     // Overtones
     int counter, thirdLoopMax;
-    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+    for(overtoneNum=CTRL_OVERTONE1; overtoneNum<=(CTRL_OVERTONE1 + 8); overtoneNum++){
         if(controlArray[overtoneNum] != 0){
             overtoneAmplitude = (controlArray[overtoneNum] / 100.0) * amplitude;
             firstLoopMax = numBytes / (4 * (overtoneNum + 2));
@@ -222,7 +256,7 @@ void generateSawWave(int *audioArray, int amplitude, int numBytes)
     
     // Overtones
     int counter, changeThresh;
-    for(overtoneNum=0; overtoneNum<=8; overtoneNum++){
+    for(overtoneNum=CTRL_OVERTONE1; overtoneNum<=(CTRL_OVERTONE1 + 8); overtoneNum++){
         if(controlArray[overtoneNum] != 0){
             overtoneAmplitude = (controlArray[overtoneNum]/100.0) * amplitude;
             changeThresh = numBytes / (overtoneNum + 2);
@@ -232,6 +266,31 @@ void generateSawWave(int *audioArray, int amplitude, int numBytes)
                 audioArray[i] += AMPLITUDE_MULTIPLIER * overtoneAmplitude * (((2.0 * counter)/changeThresh) - 1);
                 counter++;
                 if(counter >= changeThresh) counter = 0;
+            }
+        }
+    }
+}
+
+/*
+ * 
+ */
+void generateBitWave(int *audioArray, int amplitude, int numBytes)
+{
+    int i, overtoneNum;
+    float overtoneAmplitude;
+    
+    for(i=0; i<numBytes; i++){
+        audioArray[i] += (AMPLITUDE_MULTIPLIER* (amplitude * sin(2.0 * PI * (i/(numBytes * 1.0)))));
+        audioArray[i] &= 0xFFFFFFF8; // Removes the bottom 3 bits
+    }
+    
+    // Overtones
+    for(overtoneNum=CTRL_OVERTONE1; overtoneNum<=(CTRL_OVERTONE1 + 8); overtoneNum++){
+        if(controlArray[overtoneNum] != 0){
+            overtoneAmplitude = (controlArray[overtoneNum]/100.0) * amplitude;
+            for(i=0; i<numBytes; i++){
+                audioArray[i] += (AMPLITUDE_MULTIPLIER * (overtoneAmplitude * sin(2.0 * PI * (overtoneNum+2) * (i/(numBytes * 1.0)))));
+                audioArray[i] &= 0xFFFFFFF8; // Removes the bottom 3 bits
             }
         }
     }
@@ -254,25 +313,28 @@ void clearAudioArray(int *audioArray, int numBytes)
  */
 void defaultWaveformInit()
 {
-    controlArray[0] = 90;
-    controlArray[1] = 50;
-    controlArray[2] = 70;
-    controlArray[3] = 30;
-    controlArray[4] = 15;
-    controlArray[5] = 15;
-    controlArray[6] = 25;
-    controlArray[7] = 0;
-    controlArray[8] = 0;
-    controlArray[9] = 100;
-    controlArray[10] = 0;
-    controlArray[11] = 0;
-    controlArray[12] = 0;
-    controlArray[13] = 50;
-    controlArray[14] = 50;
-    controlArray[15] = 0;
-    controlArray[16] = 0;
-    controlArray[17] = 0;
-    controlArray[18] = 140;
+    controlArray[CTRL_OVERTONE1] = 80;
+    controlArray[CTRL_OVERTONE2] = 30;
+    controlArray[CTRL_OVERTONE3] = 50;
+    controlArray[CTRL_OVERTONE4] = 17;
+    controlArray[CTRL_OVERTONE5] = 3;
+    controlArray[CTRL_OVERTONE6] = 5;
+    controlArray[CTRL_OVERTONE7] = 20;
+    controlArray[CTRL_OVERTONE8] = 0;
+    controlArray[CTRL_OVERTONE9] = 0;
+    controlArray[CTRL_SINE_AMP] = 100;
+    controlArray[CTRL_SQUARE_AMP] = 0;
+    controlArray[CTRL_TRIANGLE_AMP] = 0;
+    controlArray[CTRL_SAWTOOTH_AMP] = 0;
+    controlArray[CTRL_BIT_AMP] = 0;
+    controlArray[CTRL_FN1] = 0;
+    controlArray[CTRL_FN2] = 0;
+    controlArray[CTRL_FN3] = 0;
+    controlArray[CTRL_TEMPO] = 70;
+    controlArray[CTRL_ATTACK_MULT] = 12;
+    controlArray[CTRL_ATTACK_DUR] = 10;
+    controlArray[CTRL_DECAY_DUR] = 10;
+    controlArray[CTRL_RELEASE_DUR] = 100;
 }
 
 /*
@@ -310,18 +372,113 @@ void notesInit(int *newOutput)
         notes[currentNote].noteElementMax = 0;
         notes[currentNote].measureEnd = 0;
         notes[currentNote].locationEnd = 0;
+        notes[currentNote].attackArray = attackArray;
+        notes[currentNote].decayArray = decayArray;
+        notes[currentNote].releaseArray = releaseArray;
     }
     
     currentArrayX = 0;
     currentArrayY = 0;
     currentArray = 1;
-    *newOutput = 1;
+    *newOutput = 0;
 }
 
 /*
- * 
- */
+ *
+ */ 
 void updateOutputBuffer(int *newOutput)
+{
+    if(*newOutput != 1) return;
+    *newOutput = 0;
+    
+    int noteNum;
+    int output = 0;
+    
+    // Read current duration and reset as it is a volatile variable
+    //int elapsedTime = timerAudio->duration;
+    timerAudio->duration = 0;
+        
+    for(noteNum=0; noteNum<NUM_NOTES; noteNum++){
+        // If note is currently on, check if it should be over
+        if(notes[noteNum].noteOn == 1){
+
+            // Check if note is over
+            if(notes[noteNum].measureEnd <= timerAudio->measure){
+                if((notes[noteNum].locationEnd <= timerAudio->location64) && (notes[noteNum].triplet == 0)){
+                    // Non-triplet case
+                    // If note is over, set state to Release and reset stateDuration
+                    if(notes[noteNum].currentState != RELEASE_STATE){
+                        notes[noteNum].currentState = RELEASE_STATE;
+                        notes[noteNum].stateElement = 0;
+                    }
+                } else if((notes[noteNum].locationEnd <= timerAudio->location64Triplet)&&(notes[noteNum].triplet == 1)){
+                    // Triplet case
+                    // If note is over, set state to Release and reset stateDuration
+                    if(notes[noteNum].currentState != RELEASE_STATE){
+                        notes[noteNum].currentState = RELEASE_STATE;
+                        notes[noteNum].stateElement = 0;
+                    }
+                }
+            }
+            
+            // Determine multiplier based on state
+            // Update state if ready
+            switch(notes[noteNum].currentState){
+                case ATTACK_STATE: // Attack
+                    if(notes[noteNum].stateElement < notes[noteNum].attackElements){
+                        output += (int)(attackArray[notes[noteNum].stateElement] * notes[noteNum].waveformArray[notes[noteNum].noteElement]);
+                    } else {
+                        notes[noteNum].currentState = DECAY_STATE;
+                        notes[noteNum].stateElement = 0;
+                        output += (int)(decayArray[notes[noteNum].stateElement] * notes[noteNum].waveformArray[notes[noteNum].noteElement]);
+                    }
+                    break;
+
+                case DECAY_STATE: // Decay
+                    if(notes[noteNum].stateElement < notes[noteNum].decayElements){
+                        output += (int)(decayArray[notes[noteNum].stateElement] * notes[noteNum].waveformArray[notes[noteNum].noteElement]);
+                    } else {
+                        notes[noteNum].currentState = SUSTAIN_STATE;
+                        notes[noteNum].stateElement = 0;
+                        output += notes[noteNum].waveformArray[notes[noteNum].noteElement];
+                    }
+                    break;
+
+                case SUSTAIN_STATE: // Sustain
+                    output += notes[noteNum].waveformArray[notes[noteNum].noteElement];
+                    break;
+
+                case RELEASE_STATE: // Release
+                    if(notes[noteNum].stateElement < notes[noteNum].attackElements){
+                        output += (int)(releaseArray[notes[noteNum].stateElement] * notes[noteNum].waveformArray[notes[noteNum].noteElement]);
+                    } else {
+                        notes[noteNum].noteOn = 0;
+                    }
+                    break;
+                    
+                default:
+                    notes[noteNum].currentState = ATTACK_STATE;
+                    break;
+            }
+
+            // Increment state array element for next output
+            notes[noteNum].stateElement++;
+            
+            // Increase value of element based on pitch
+            notes[noteNum].noteElement += exponentOfTwo(notes[noteNum].pitch);
+            if(notes[noteNum].noteElement >= notes[noteNum].noteElementMax){
+                notes[noteNum].noteElement -= notes[noteNum].noteElementMax;
+            }
+        }
+    }
+     
+    output += AUDIO_OFFSET; // Offset
+    
+    // Output Data
+    spi1Write(output);
+}
+
+void updateOutputBufferOriginal(int *newOutput)
 {
     int noteNum, noteEnded;
     
@@ -345,7 +502,7 @@ void updateOutputBuffer(int *newOutput)
                 
                 if(noteEnded == 0){
                     // Write to output
-                    output += notes[noteNum].noteArray[notes[noteNum].noteElement];
+                    output += notes[noteNum].waveformArray[notes[noteNum].noteElement];
                     notes[noteNum].noteElement += exponentOfTwo(notes[noteNum].pitch);
                     if(notes[noteNum].noteElement >= notes[noteNum].noteElementMax){
                         notes[noteNum].noteElement -= notes[noteNum].noteElementMax;
@@ -393,6 +550,7 @@ void readScoreArray()
 //                }
 //            }
 
+            // Update location of next note on score
             if(updateScoreArray == 1){
                 currentArrayX += NOTE_ARRAY_SIZE;
                 if(currentArrayX >= ARRAY_SIZE_X){
@@ -409,18 +567,31 @@ void readScoreArray()
 }
 
 /*
+ *      attackVolume
+ *       /\   Sustain Volume (dynamic)
+ *      /  \___________________________  
+ *     /                               \     
+ *    /                                 \ 
+ *   /                                   \
  * 
- */
+ */                          
 void updateNote(noteStruct *note, int isTriplet)
 {
     int noteValue;
     
+    // Activate note
     note->noteOn = 1;
     note->noteElement = 0;
+    // Read values from the score array
     noteValue = scoreArray1[currentArrayX][currentArrayY];
     note->pitch = scoreArray1[currentArrayX+1][currentArrayY];
     note->measureEnd = ((scoreArray1[currentArrayX+5][currentArrayY] << 8) | scoreArray1[currentArrayX+6][currentArrayY]);
     note->locationEnd = scoreArray1[currentArrayX+7][currentArrayY];
+    note->dynamic = 100;
+    // Activate attack state
+    note->currentState = ATTACK_STATE;
+    note->stateElement = 0;
+    
     if(isTriplet){ 
         note->triplet = 1;
     } else {
@@ -429,67 +600,67 @@ void updateNote(noteStruct *note, int isTriplet)
 
     switch(noteValue){
         case C:
-            note->noteArray = c1Waveform;
+            note->waveformArray = c1Waveform;
             note->noteElementMax = C1_BUFF_SIZE;
             break;
 
         case Csh:
-            note->noteArray = cSharp1Waveform;
+            note->waveformArray = cSharp1Waveform;
             note->noteElementMax = CSh1_BUFF_SIZE;
             break;
 
         case D:
-            note->noteArray = d1Waveform;
+            note->waveformArray = d1Waveform;
             note->noteElementMax = D1_BUFF_SIZE;
             break;
 
         case Dsh:
-            note->noteArray = dSharp1Waveform;
+            note->waveformArray = dSharp1Waveform;
             note->noteElementMax = DSh1_BUFF_SIZE;
             break;
 
         case E:
-            note->noteArray = e1Waveform;
+            note->waveformArray = e1Waveform;
             note->noteElementMax = E1_BUFF_SIZE;
             break;
 
         case F:
-            note->noteArray = f1Waveform;
+            note->waveformArray = f1Waveform;
             note->noteElementMax = F1_BUFF_SIZE;
             break;
 
         case Fsh:
-            note->noteArray = fSharp1Waveform;
+            note->waveformArray = fSharp1Waveform;
             note->noteElementMax = FSh1_BUFF_SIZE;
             break;
 
         case G:
-            note->noteArray = g1Waveform;
+            note->waveformArray = g1Waveform;
             note->noteElementMax = G1_BUFF_SIZE;
             break;
 
         case Gsh:
-            note->noteArray = gSharp1Waveform;
+            note->waveformArray = gSharp1Waveform;
             note->noteElementMax = GSh1_BUFF_SIZE;
             break;
 
         case A:
-            note->noteArray = a1Waveform;
+            note->waveformArray = a1Waveform;
             note->noteElementMax = A1_BUFF_SIZE;
             break;
 
         case Ash:
-            note->noteArray = aSharp1Waveform;
+            note->waveformArray = aSharp1Waveform;
             note->noteElementMax = ASh1_BUFF_SIZE;
             break;
 
         case B:
-            note->noteArray = b1Waveform;
+            note->waveformArray = b1Waveform;
             note->noteElementMax = B1_BUFF_SIZE;
             break;
             
         default:
-            note->noteArray = emptyArray;
+            note->waveformArray = emptyArray;
             note->noteElementMax = 1;
             // TODO: Pauses Song and resets to beginning
     }
@@ -2507,12 +2678,12 @@ scoreArray1[67][29] = 48;
     
 }
 
-int exponentOfTwo(int exp)
+int exponentOfTwo(int exponent)
 {
     int i;
     int result = 1;
     
-    for(i=0; i<exp; i++){
+    for(i=1; i <= exponent; i++){
         result *= 2;
     }
     

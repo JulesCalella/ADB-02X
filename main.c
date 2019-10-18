@@ -261,8 +261,10 @@ volatile int timerCalled;
 timingStruct timer;
 interfaceStruct interface;
 
+// Timer 1 Interrupts called every 10us for LED control
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 {
+    // 10 us timer interrupt
     currentLedIncrement();
     if(timer.loading==1){ 
         if(timer.loadingCount++ > 30000){
@@ -297,6 +299,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
 void updateTimer()
 {
     timer.interruptCount += timerCalled;
+    timer.duration += timerCalled;
     timerCalled = 0;
     
     if(timer.interruptCount >= timer.location64Max){
@@ -315,6 +318,10 @@ void updateTimer()
         } else if(((timer.location64 % 16) - 2) == 0){
             tempoLedOff();
         }
+    }
+    
+    if(timer.duration >= DURATION_MAX){ 
+        timer.duration -= DURATION_MAX;
     }
 }
 
@@ -379,18 +386,20 @@ int main(void)
     generateAllWaveforms();
     updateOutputBuffer(&newOutput);
     
-    char send = 0;
+//    char send = 0;
     
     while(1)
     {
         updateTimer();
         readScoreArray();
-        if(interface.play != 0) updateOutputBuffer(&newOutput);
+        if(interface.play != 0){
+            updateOutputBuffer(&newOutput);
+        }
         updateInterface();
         
-        uart1Write(send);
-        send++;
-        if(send >= 0x7F) send = 0;
+//        uart1Write(send);
+//        send++;
+//        if(send >= 0x7F) send = 0;
         
     }
     

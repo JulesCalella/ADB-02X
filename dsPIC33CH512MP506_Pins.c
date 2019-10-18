@@ -441,37 +441,37 @@ void updateInterface()
         
         switch(interfaceSelection){
             case 0: // Sine Wave
-                updateAmplitude(9);
+                updateAmplitude(CTRL_SINE_AMP);
                 updateLeds(FN_SINE);
                 break;
 
             case 1: // Square Wave
-                updateAmplitude(10);
+                updateAmplitude(CTRL_SQUARE_AMP);
                 updateLeds(FN_SQUARE);
                 break;
 
             case 2: // Triangle Wave
-                updateAmplitude(11);
+                updateAmplitude(CTRL_TRIANGLE_AMP);
                 updateLeds(FN_TRIANGLE);
                 break;
 
             case 3: // Sawtooth Wave
-                updateAmplitude(12);
+                updateAmplitude(CTRL_SAWTOOTH_AMP);
                 updateLeds(FN_SAWTOOTH);
                 break;
 
             case 4: // Attack
-                updateAmplitude(13);
+                updateAmplitude(CTRL_ATTACK_DUR);
                 updateLeds(FN_ATTACK);
                 break;
 
-            case 5: // Decay
-                updateAmplitude(14);
-                updateLeds(FN_DECAY);
+            case 5: // Release
+                updateAmplitude(CTRL_RELEASE_DUR);
+                updateLeds(FN_DECAY);   // TODO: Rename this RELEASE
                 break;
 
             case 6: // Instrument
-
+                // TODO: updateInstrument()
                 updateLeds(FN_INSTRUMENT);
                 break;
 
@@ -480,69 +480,69 @@ void updateInterface()
                 updateLeds(FN_MEMORY);
                 break;
             case 8: // Tempo
-                updateAmplitude(18);
+                updateAmplitude(CTRL_TEMPO);
                 writeControlArray(audioControlArray);
                 updateLeds(0xFF);
-                updateTempo(audioControlArray[18]);
+                updateTempo(audioControlArray[CTRL_TEMPO]);
                 break;
                 
             case 9: // Overtone 1
-                updateAmplitude(0);
+                updateAmplitude(CTRL_OVERTONE1);
                 updateLeds(FN_ONE);
                 break;
 
             case 10: // Overtone 2
-                updateAmplitude(1);
+                updateAmplitude(CTRL_OVERTONE2);
                 updateLeds(FN_TWO);
                 break;
 
             case 11: // Overtone 3
-                updateAmplitude(2);
+                updateAmplitude(CTRL_OVERTONE3);
                 updateLeds(FN_THREE);
                 break;
 
             case 12: // Overtone 4
-                updateAmplitude(3);
+                updateAmplitude(CTRL_OVERTONE4);
                 updateLeds(FN_FOUR);
                 break;
 
             case 13: // Overtone 5
-                updateAmplitude(4);
+                updateAmplitude(CTRL_OVERTONE5);
                 updateLeds(FN_FIVE);
                 break;
 
             case 14: // Overtone 6
-                updateAmplitude(5);
+                updateAmplitude(CTRL_OVERTONE6);
                 updateLeds(FN_SIX);
                 break;
 
             case 15: // Overtone 7
-                updateAmplitude(6);
+                updateAmplitude(CTRL_OVERTONE7);
                 updateLeds(FN_SEVEN);
                 break;
 
             case 16: // Overtone 8
-                updateAmplitude(7);
+                updateAmplitude(CTRL_OVERTONE8);
                 updateLeds(FN_EIGHT);
                 break;
 
             case 17: // Overtone 9
-                updateAmplitude(8);
+                updateAmplitude(CTRL_OVERTONE9);
                 updateLeds(FN_NINE);
                 break;
 
             case 18: // Function 1
-                updateAmplitude(15);
+                updateAmplitude(CTRL_FN1);
                 updateLeds(FN_F1);
                 break;
 
             case 19: // Function 2
-                updateAmplitude(16);
+                updateAmplitude(CTRL_FN2);
                 updateLeds(FN_F2);
                 break;
 
             case 20: // Function 3
-                updateAmplitude(17);
+                updateAmplitude(CTRL_FN3);
                 updateLeds(FN_F3);
                 break;
         }
@@ -581,7 +581,7 @@ void updateAmplitude(int arrayIndex)
     }
     
     
-    if(arrayIndex != 18){
+    if(arrayIndex != CTRL_TEMPO){
         if(audioControlArray[arrayIndex] > 100) audioControlArray[arrayIndex] = 100;
         if(audioControlArray[arrayIndex] < 0) audioControlArray[arrayIndex] = 0;
     } else {
